@@ -22,7 +22,7 @@ class dataReader {
 			Scanner in = new Scanner(data);
 			in.nextLine();
 			
-			if (filename[n] == "basic") {
+			if (filename[n] == "basic.utt") {
 				c = in.nextInt(); // Number of courses
 				r = in.nextInt(); // Number of rooms
 				d = in.nextInt(); // The set of days
@@ -30,47 +30,43 @@ class dataReader {
 				cur = in.nextInt(); // Number of curriculum
 				con = in.nextInt(); // Number of constraints
 				l = in.nextInt(); // Number of lecturers
-			} else if (filename[n] == "courses") {
+			} else if (filename[n] == "courses.utt") {
 				Co = new Course [c];
 				for (int i=0; i<c; i++) {
 					Co[i] = new Course();
-					for (int j=0; j<5; j++) {
-						Co[i].setCourse_nr(in.next());
-						Co[i].setLecture_nr(in.next());
-						Co[i].setNr_Lec(in.nextInt());
-						Co[i].setMin_days(in.nextInt());
-						Co[i].setNr_students(in.nextInt());
-					}
+					Co[i].setCourse_nr(in.next());
+					Co[i].setLecture_nr(in.next());
+					Co[i].setNr_Lec(in.nextInt());
+					Co[i].setMin_days(in.nextInt());
+					Co[i].setNr_students(in.nextInt());
 				}
-			} else if (filename[n] == "curricila") {
-				Cur = new Curricula [c];
+			} else if (filename[n] == "curricula.utt") {
+				Cur = new Curricula [cur];
 				for (int i=0; i<cur; i++) {
 					Cur[i] = new Curricula();
 					Cur[i].setCur_nr(in.next());
 					Cur[i].setNum_courses(in.nextInt());
 				}
-			} else if (filename[n] == "lecturers") {
+			} else if (filename[n] == "lecturers.utt") {
 				Lecturers = new String[l];
 				for (int i = 0; i<l; i++) {
 					Lecturers[i] = in.next();
 				}
-			} else if (filename[n] == "relation") {
-				for (int i =0; i< c;i++) {
+			} else if (filename[n] == "relation.utt") {
+				for (int i =0; i< cur;i++) {
 					for(int j =0; j< Cur[i].getNum_courses();j++) {
-						for(int k =0; k<2;k++) {
-							in.hasNext();
-							Cur[i].addCourse_nr(in.next());
-						}
+						in.next();
+						Cur[i].addCourse_nr(in.next());
 					}
 				}
-			} else if (filename[n] == "rooms") {
+			} else if (filename[n] == "rooms.utt") {
 				Room_id = new String[r];
 				Room_cap = new int[r];
 				for (int i = 0; i<r; i++) {
 					Room_id[i] = in.next();
 					Room_cap[i] = in.nextInt();
 				}
-			} else if (filename[n] == "unavailability") {
+			} else if (filename[n] == "unavailability.utt") {
 				int i = 0;
 				Co[i].createBin_con(d, t);
 				for (int k = 0; k<con;k++) {
@@ -80,8 +76,6 @@ class dataReader {
 							Co[i].createBin_con(d, t);
 						}
 						Co[i].setBin_con(in.nextInt(), in.nextInt());
-						
-						
 					}
 				}
 			} else {

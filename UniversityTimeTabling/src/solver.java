@@ -7,8 +7,9 @@ public class solver {
 	public solver(String[] filename) {
 		try {
 			dataReader instance = new dataReader(filename);
-			Co = instance.getCourses();
-			bin = Co[0].getBin_con();
+			this.Co = instance.getCourses();
+			//bin = new int [Co[0].getBin_con().length][Co[0].getBin_con().length];
+			//bin = Co[0].getBin_con();
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 			System.exit(-1);
@@ -16,13 +17,14 @@ public class solver {
 		//bin = new int[Co[0].getBin_con().length][Co[0].getBin_con()[0].length];
 		//bin = Co[0].getBin_con();
 		
-		for(int i =0; i< bin.length;i++) {
+		/*for(int i =0; i< bin.length;i++) {
 			System.out.println();
 			for(int j = 0; j<bin[i].length;j++) {
 				System.out.print(bin[i][j] + " ");
 			}
 				
-		}
+		}*/
+		System.out.print(Co[0].getCourse_nr());
 	}
 	
 

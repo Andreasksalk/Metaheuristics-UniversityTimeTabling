@@ -7,18 +7,25 @@ class Course {
 	private int nr_students;
 	private int[][] bin_con;
 	
+	public Course() {
+		Course_nr = "";
+		Lecture_nr = "";
+		nr_Lec = -1;
+		min_days = -1;
+		nr_students = -1;
+	}
 	
 	public String getCourse_nr() {
 		return Course_nr;
 	}
 	public void setCourse_nr(String course_nr) {
-		Course_nr = course_nr;
+		this.Course_nr = course_nr;
 	}
 	public String getLecture_nr() {
 		return Lecture_nr;
 	}
 	public void setLecture_nr(String lecture_nr) {
-		Lecture_nr = lecture_nr;
+		this.Lecture_nr = lecture_nr;
 	}
 	public int getNr_Lec() {
 		return nr_Lec;
