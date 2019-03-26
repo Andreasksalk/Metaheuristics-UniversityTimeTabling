@@ -1,3 +1,4 @@
+import java.util.*;
 
 class Course {
 	private String Course_nr;
@@ -6,6 +7,7 @@ class Course {
 	private int min_days;
 	private int nr_students;
 	private int[][] bin_con;
+	private int index;
 	
 	public Course() {
 		Course_nr = "";
@@ -48,12 +50,23 @@ class Course {
 	
 	public void createBin_con(int d, int p) {
 		bin_con = new int [d][p];
+		for (int i = 0; i<d;i++) {
+			for ( int j = 0; j<p; j++) {
+				bin_con[i][j] = 1;
+			}
+		}
 	}
 	
 	public void setBin_con(int d, int p) {
-		bin_con[d][p] = 1;
+		bin_con[d][p] = 0;
 	}
 	public int [][] getBin_con() {
 		return bin_con;
+	}
+	public void setIndex(int i) {
+		index = i;
+	}
+	public int getIndex() {
+		return index;
 	}
 }

@@ -24,7 +24,14 @@ public class solver {
 			}
 				
 		}*/
-		System.out.print(Co[0].getCourse_nr());
+		bin = Co[0].getBin_con();
+		for(int i = 0; i<bin.length;i++) {
+			System.out.println();
+			for(int j = 0; j<bin[0].length;j++) {
+				System.out.print(bin[i][j]);
+			}
+		}
+		//System.out.print(Co[0].getBin_con()+ " ");
 	}
 	
 

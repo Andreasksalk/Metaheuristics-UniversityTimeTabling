@@ -1,5 +1,5 @@
 import java.io.*;
-import java.util.Scanner;
+import java.util.*;
 
 class dataReader {
 	private Course [] Co;
@@ -39,6 +39,8 @@ class dataReader {
 					Co[i].setNr_Lec(in.nextInt());
 					Co[i].setMin_days(in.nextInt());
 					Co[i].setNr_students(in.nextInt());
+					Co[i].createBin_con(d, t);
+					Co[i].setIndex(i);
 				}
 			} else if (filename[n] == "curricula.utt") {
 				Cur = new Curricula [cur];
@@ -67,16 +69,13 @@ class dataReader {
 					Room_cap[i] = in.nextInt();
 				}
 			} else if (filename[n] == "unavailability.utt") {
-				int i = 0;
-				Co[i].createBin_con(d, t);
+				String i = "";
+				int j = 0;
 				for (int k = 0; k<con;k++) {
-					for(int j = 0; j<3; j++) {
-						if(Co[i].getCourse_nr() != in.next()) {
-							i++;
-							Co[i].createBin_con(d, t);
-						}
-						Co[i].setBin_con(in.nextInt(), in.nextInt());
-					}
+					i = in.next();
+					i = i.substring(1);
+					j = Integer.parseInt(i);
+					Co[j].setBin_con(in.nextInt(), in.nextInt());
 				}
 			} else {
 				continue;

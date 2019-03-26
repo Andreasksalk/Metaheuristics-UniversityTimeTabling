@@ -10,6 +10,7 @@ class Curricula {
 	}
 	public void setNum_courses(int num_courses) {
 		this.num_courses = num_courses;
+		Course_nr = new ArrayList <String> ();
 	}
 	public String getCur_nr() {
 		return cur_nr;
