@@ -75,7 +75,7 @@ class dataReader {
 					i = in.next();
 					i = i.substring(1);
 					j = Integer.parseInt(i);
-					Co[j].setBin_con(in.nextInt(), in.nextInt());
+					Co[j].setBin_con(in.nextInt()*t+in.nextInt());
 				}
 			} else {
 				continue;
@@ -98,5 +98,11 @@ class dataReader {
 	}
 	public String [] getLecturers() {
 		return Lecturers;
+	}
+	public int getDays() {
+		return d;
+	}
+	public int getPeriods() {
+		return t;
 	}
 }

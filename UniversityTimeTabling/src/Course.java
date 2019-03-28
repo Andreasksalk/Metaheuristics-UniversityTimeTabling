@@ -6,7 +6,7 @@ class Course {
 	private int nr_Lec;
 	private int min_days;
 	private int nr_students;
-	private int[][] bin_con;
+	private int[] bin_con;
 	private int index;
 	
 	public Course() {
@@ -49,18 +49,17 @@ class Course {
 	}
 	
 	public void createBin_con(int d, int p) {
-		bin_con = new int [d][p];
-		for (int i = 0; i<d;i++) {
-			for ( int j = 0; j<p; j++) {
-				bin_con[i][j] = 1;
-			}
+		bin_con = new int [d*p];
+		for (int i = 0; i<d*p;i++) {
+				bin_con[i] = 1;
 		}
 	}
+
 	
-	public void setBin_con(int d, int p) {
-		bin_con[d][p] = 0;
+	public void setBin_con(int i) {
+		bin_con[i] = 0;
 	}
-	public int [][] getBin_con() {
+	public int [] getBin_con() {
 		return bin_con;
 	}
 	public void setIndex(int i) {
