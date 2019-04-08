@@ -8,6 +8,7 @@ public class programRun {
 		
 		solver data = new solver(filename);
 		
+		data.solve();
 	}
 
 }
