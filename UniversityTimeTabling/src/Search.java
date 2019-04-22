@@ -14,54 +14,37 @@ class Search {
 	
 	public Search(int [][][] x, Course[] Co, Curricula[] Cu, String [] Room_id, int [] Room_cap, int p, int d) {
 		
-		ArrayList <int [][][]> tree_sol = new ArrayList <int[][][]> ();
 		int [][][] best_x = generateX(x);
-		int [][][] best2_x = generateX(x);
-		int [][][] best3_x = generateX(x);
-		tree_sol.add(best_x);
-		tree_sol.add(best2_x);
-		tree_sol.add(best3_x);
 		int iter = 0;
 		double old_obj = ObjValue(best_x, Co, Cu, Room_id, Room_cap, p, d);
 		double min_obj = ObjValue(best_x, Co, Cu, Room_id, Room_cap, p, d);
-		double min2_obj = ObjValue(best_x, Co, Cu, Room_id, Room_cap, p, d);
-		double min3_obj = ObjValue(best_x, Co, Cu, Room_id, Room_cap, p, d);
 		
 		System.out.println("Construction: " + min_obj);
 		int num_swaps = 0;
 		
 		while (iter - 1 < 2) {
-			tree_sol.add(best_x);
-			tree_sol.add(best2_x);
-			tree_sol.add(best3_x);
-			for (int [][][] tree_node: tree_sol) {
-				Neighbourhood(tree_node,Co,Cu,Room_id,Room_cap,p,d);
-				int i = 0;
-				int min_i = 0;
-				
-				double [] ObjVals;
-				ObjVals = new double [solutions.size()];
-				for (int [][][] sol: solutions) {
-					ObjVals[i] = ObjValue(sol, Co, Cu, Room_id, Room_cap, p, d);
-					if (ObjVals[i] < min_obj) {
-						min_obj = ObjVals[i];
-						min_i = i;
-						best_x = solutions.get(min_i);
-					} else if (ObjVals[i] < min2_obj) {
-						min2_obj = ObjVals[i];
-						best2_x = solutions.get(min_i);
-					} else if (ObjVals[i] < min3_obj) {
-						min3_obj = ObjVals[i];
-						best3_x = solutions.get(min_i);
-					}
-					i++;
+			Neighbourhood(best_x,Co,Cu,Room_id,Room_cap,p,d);
+			int i = 0;
+			int min_i = 0;
+			
+			double [] ObjVals;
+			ObjVals = new double [solutions.size()];
+			for (int [][][] sol: solutions) {
+				ObjVals[i] = ObjValue(sol, Co, Cu, Room_id, Room_cap, p, d);
+				if (ObjVals[i] < min_obj) {
+					min_obj = ObjVals[i];
+					min_i = i;
 				}
+				i++;
 			}
+			best_x = solutions.get(min_i);
 			if (min_obj >= old_obj) {
 				iter++;
 			}
+			if (min_obj <= old_obj) {
+				num_swaps++;
+			}
 			System.out.println("Best solution: " + min_obj);
-			num_swaps++;
 			System.out.println("Number of swaps: " + num_swaps);
 			old_obj = min_obj;
 			
