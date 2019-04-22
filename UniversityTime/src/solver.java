@@ -1,4 +1,4 @@
-import java.io.FileNotFoundException;
+import java.io.*;
 
 public class solver {
 	Course[] Co;
@@ -31,11 +31,12 @@ public class solver {
 		FCFS sol1 = new FCFS(Co,Cu,Room_id,Room_cap,p,d);
 		x = sol1.returnX();
 		Search sol2 = new Search(x,Co,Cu,Room_id,Room_cap,p,d);
+		writeSol("test01.sol");
 		//x2 = sol2.returnX();
 		//System.out.print(x.length);
 		int day = 0;
 		int period = 0;
-		/*for (int i = 0; i < x.length; i++) {
+		for (int i = 0; i < x.length; i++) {
 			day = 0;
 			period = 0;
 			for (int j = 0; j <x[i].length; j++) {
@@ -51,10 +52,10 @@ public class solver {
 				}
 				period ++;
 			}
-		}*/
+		}
 		
 		
-		for(int k = 0; k < x[0][0].length; k++) {
+		/*for(int k = 0; k < x[0][0].length; k++) {
 			System.out.print(Room_id[k] + " ");
 			for (int i = 0; i < x.length; i++) {
 				for (int j = 0; j <x[i].length; j++) {
@@ -64,9 +65,46 @@ public class solver {
 				}
 			}
 			System.out.println();
-		}
+		}*/
 	}
 	
 	
-	
+	public void writeSol (String filename) {
+		BufferedWriter writer = null;
+		
+		try {
+			File solFile = new File(filename);
+			solFile.createNewFile();
+		
+			writer = new BufferedWriter(new FileWriter(filename,true));
+			
+			for (int i = 0; i < x.length; i++) {
+				int day = 0;
+				int period = 0;
+				for (int j = 0; j <x[i].length; j++) {
+					if (j % p == 0 && j != 0) {
+						//System.out.println(j);
+						day++;
+						period = 0;
+					}
+					for(int k = 0; k < x[i][j].length; k++) {
+						if (x[i][j][k] == 1 ) {
+							writer.write(Co[i].getCourse_nr() + " " +  day + " " + period + " " + Room_id[k]);
+							writer.newLine();
+						}
+					}
+					period ++;
+				}
+			}
+			
+		} catch(Exception e) {
+			e.printStackTrace();
+		}
+		try {
+		writer.close();
+		} catch(Exception e) {
+			
+		}
+	}
+		
 }
