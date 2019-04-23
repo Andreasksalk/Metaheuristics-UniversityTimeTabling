@@ -11,34 +11,28 @@ class Search {
 	int con4 = 0;
 	int con5 = 0;
 	int con6 = 0;
+	ArrayList <int []> swap_change = new ArrayList <int[]> ();
 	
 	public Search(int [][][] x, Course[] Co, Curricula[] Cu, String [] Room_id, int [] Room_cap, int p, int d) {
 		
-		ArrayList <int [][][]> tree_sol = new ArrayList <int[][][]> ();
 		int [][][] best_x = generateX(x);
-		int [][][] best2_x = generateX(x);
-		int [][][] best3_x = generateX(x);
-		tree_sol.add(best_x);
-		tree_sol.add(best2_x);
-		tree_sol.add(best3_x);
-		int iter = 0;
+		int iter = 1;
 		double old_obj = ObjValue(best_x, Co, Cu, Room_id, Room_cap, p, d);
 		double min_obj = ObjValue(best_x, Co, Cu, Room_id, Room_cap, p, d);
-		double min2_obj = ObjValue(best_x, Co, Cu, Room_id, Room_cap, p, d);
-		double min3_obj = ObjValue(best_x, Co, Cu, Room_id, Room_cap, p, d);
+		
+		int min_i = 0;
 		
 		System.out.println("Construction: " + min_obj);
 		int num_swaps = 0;
 		
 		while (iter - 1 < 2) {
-			tree_sol.add(best_x);
-			tree_sol.add(best2_x);
-			tree_sol.add(best3_x);
-			for (int [][][] tree_node: tree_sol) {
-				Neighbourhood(tree_node,Co,Cu,Room_id,Room_cap,p,d);
+			Neighbourhood(best_x,Co,Cu,Room_id,Room_cap,p,d);
+			int num_swaps_n = 0;
+			
+			int iter2 = 1;
+			while (iter2 - 1 < 1) {
 				int i = 0;
-				int min_i = 0;
-				
+				min_i = 0;
 				double [] ObjVals;
 				ObjVals = new double [solutions.size()];
 				for (int [][][] sol: solutions) {
@@ -46,24 +40,29 @@ class Search {
 					if (ObjVals[i] < min_obj) {
 						min_obj = ObjVals[i];
 						min_i = i;
-						best_x = solutions.get(min_i);
-					} else if (ObjVals[i] < min2_obj) {
-						min2_obj = ObjVals[i];
-						best2_x = solutions.get(min_i);
-					} else if (ObjVals[i] < min3_obj) {
-						min3_obj = ObjVals[i];
-						best3_x = solutions.get(min_i);
 					}
 					i++;
 				}
-			}
+				best_x = solutions.get(min_i);
+				sol_change(min_i);
+				if (min_obj < old_obj) {
+					num_swaps_n++;
+					num_swaps++;
+				}
 				if (min_obj >= old_obj) {
-					iter++;
+					iter2++;
 				}
 				System.out.println("Best solution: " + min_obj);
-				num_swaps++;
 				System.out.println("Number of swaps: " + num_swaps);
+				System.out.println("Number of swaps in neighborhood: " + num_swaps_n);
 				old_obj = min_obj;
+			}
+			best_x = solutions.get(min_i);
+			if (min_obj >= old_obj) {
+				iter++;
+			}
+			//System.out.println("Best solution: " + min_obj);
+			//System.out.println("Number of swaps: " + num_swaps);
 			
 		}
 		
@@ -78,10 +77,16 @@ class Search {
 	public void Neighbourhood(int [][][] x, Course[] Co, Curricula[] Cu, String [] Room_id, int [] Room_cap, int p, int d) {
 		x_original = new int [x.length][x[0].length][x[0][0].length];
 		unassigned = new int[x.length];
+		int [] dummy = new int [6];
+		for (int i = 0; i < 6; i++) {
+			dummy[i] = 0;
+		}
 		
 		x_original = generateX(x);
 		solutions.clear();
 		solutions.add(x);
+		swap_change.clear();
+		swap_change.add(dummy);
 		
 		
 		/* course 1 - now: day1 period 1-6. ---> course 1 - solution 1: day1 period 1-5 period 6 ---> day 5 period 6. (all available periods with all courses)
@@ -282,8 +287,18 @@ class Search {
 											x_new[l][m][n] = 0;
 											x_new[l][j][k] = 1;
 											x_new[i][m][n] = 1;
+											
+											int [] o = new int [6];
+											o[0] = i;
+											o[1] = j;
+											o[2] = k;
+											o[3] = l;
+											o[4] = m;
+											o[5] = n;
+											
 											if(available(x_new,l,j,j,n,k,Co,Cu,Room_id,Room_cap,p,d) == true && available(x_new,i,m,m,n,k,Co,Cu,Room_id,Room_cap,p,d) == true ) {
 												newsol.add(x_new);
+												swap_change.add(o);
 											}
 										}
 									}
@@ -293,8 +308,18 @@ class Search {
 								if (unassigned[l] > 0 && l != i) {
 									x_new[i][j][k] = 0;
 									x_new[l][j][k] = 1;
+									
+									int [] o = new int [6];
+									o[0] = i;
+									o[1] = j;
+									o[2] = k;
+									o[3] = l;
+									o[4] = j;
+									o[5] = k;
+									
 									if(available(x_new,l,j,j,k,k,Co,Cu,Room_id,Room_cap,p,d) == true && available(x_new,i,j,j,k,k,Co,Cu,Room_id,Room_cap,p,d) == true ) {
 										newsol.add(x_new);
+										swap_change.add(o);
 									}
 								}
 							}
@@ -348,8 +373,14 @@ class Search {
 				}
 			}
 			U[i] = U[i]-tempU;
+			if (U[i] < 0) {
+				U[i] = 0;
+			}
 			P[i] = tempP;
 			W[i] = W[i] - tempW;
+			if (W[i] < 0) {
+				W[i] = 0;
+			}
 			
 			Obj+= 10*U[i];
 			Obj+= 1*P[i];
@@ -362,6 +393,9 @@ class Search {
 				for(int i = 0; i < x.length; i++) {
 					if(x[i][j][k] == 1 && Room_cap[k] < Co[i].getNr_students()) {
 						tempV += Co[i].getNr_students() - Room_cap[k];
+							if (tempV < 0) {
+								tempV = 0;
+							}
 					}
 				}
 				V[j][k] = tempV;
@@ -425,6 +459,16 @@ class Search {
 		
 		return Obj;
 		
+	}
+	
+	public void sol_change (int i) {
+		int [] sc = swap_change.get(i);
+		for (int [][][] sol: solutions) {
+			sol[sc[0]][sc[1]][sc[2]] = 0;
+			sol[sc[3]][sc[4]][sc[5]] = 0;
+			sol[sc[3]][sc[1]][sc[2]] = 1;
+			sol[sc[1]][sc[4]][sc[5]] = 1;
+		}
 	}
 }
 
