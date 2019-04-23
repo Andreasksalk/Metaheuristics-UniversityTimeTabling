@@ -31,10 +31,10 @@ public class solver {
 		FCFS sol1 = new FCFS(Co,Cu,Room_id,Room_cap,p,d);
 		x = sol1.returnX();
 		Search sol2 = new Search(x,Co,Cu,Room_id,Room_cap,p,d);
-		writeSol("test01.sol");
+		//writeSol("test01.sol");
 		//x2 = sol2.returnX();
 		//System.out.print(x.length);
-		int day = 0;
+		/*int day = 0;
 		int period = 0;
 		for (int i = 0; i < x.length; i++) {
 			day = 0;
@@ -52,7 +52,7 @@ public class solver {
 				}
 				period ++;
 			}
-		}
+		}*/
 		
 		
 		/*for(int k = 0; k < x[0][0].length; k++) {

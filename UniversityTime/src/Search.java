@@ -19,20 +19,25 @@ class Search {
 		int iter = 1;
 		double old_obj = ObjValue(best_x, Co, Cu, Room_id, Room_cap, p, d);
 		double min_obj = ObjValue(best_x, Co, Cu, Room_id, Room_cap, p, d);
+		double iter_min = ObjValue(best_x, Co, Cu, Room_id, Room_cap, p, d);
 		
 		int min_i = 0;
 		
 		System.out.println("Construction: " + min_obj);
 		int num_swaps = 0;
-		
+		int num_n = 0;
+
 		while (iter - 1 < 2) {
+			num_n++;
+			System.out.println("Number of neighborhoods: " + num_n);
 			Neighbourhood(best_x,Co,Cu,Room_id,Room_cap,p,d);
 			int num_swaps_n = 0;
+			
+			min_i = 0;
 			
 			int iter2 = 1;
 			while (iter2 - 1 < 1) {
 				int i = 0;
-				min_i = 0;
 				double [] ObjVals;
 				ObjVals = new double [solutions.size()];
 				for (int [][][] sol: solutions) {
@@ -43,42 +48,48 @@ class Search {
 					}
 					i++;
 				}
-				best_x = solutions.get(min_i);
-				sol_change(min_i);
+				
 				if (min_obj < old_obj) {
 					num_swaps_n++;
 					num_swaps++;
+					System.out.println("Best solution: " + min_obj);
+					System.out.println("Number of swaps: " + num_swaps);
+					System.out.println("Number of swaps in neighborhood: " + num_swaps_n);
+					/*System.out.println("Course 1:");
+					System.out.println("Course: " + sc[0] + ", Period: " + sc[1] + ", Room: " + sc[2]);
+					System.out.println("Course 2:");
+					System.out.println("Course: " + sc[3] + ", Period: " + sc[4] + ", Room: " + sc[5]);*/
+					
 				}
+				
+				best_x = solutions.get(min_i);
+				old_obj = min_obj;
+				//sol_change(min_i);
+				
 				if (min_obj >= old_obj) {
 					iter2++;
 				}
-				System.out.println("Best solution: " + min_obj);
-				System.out.println("Number of swaps: " + num_swaps);
-				System.out.println("Number of swaps in neighborhood: " + num_swaps_n);
-				old_obj = min_obj;
 			}
-			best_x = solutions.get(min_i);
-			if (min_obj >= old_obj) {
+			if (min_obj >= iter_min) {
 				iter++;
 			}
-			//System.out.println("Best solution: " + min_obj);
-			//System.out.println("Number of swaps: " + num_swaps);
+			iter_min = min_obj;
 			
 		}
 		
-		System.out.println("Con1: " + con1);
+		/*System.out.println("Con1: " + con1);
 		System.out.println("Con2: " + con2);
 		System.out.println("Con3: " + con3);
 		System.out.println("Con4: " + con4);
 		System.out.println("Con5: " + con5);
-		System.out.println("Con6: " + con6);
+		System.out.println("Con6: " + con6); */
 	}
 	
 	public void Neighbourhood(int [][][] x, Course[] Co, Curricula[] Cu, String [] Room_id, int [] Room_cap, int p, int d) {
 		x_original = new int [x.length][x[0].length][x[0][0].length];
 		unassigned = new int[x.length];
-		int [] dummy = new int [6];
-		for (int i = 0; i < 6; i++) {
+		int [] dummy = new int [7];
+		for (int i = 0; i < 7; i++) {
 			dummy[i] = 0;
 		}
 		
@@ -100,6 +111,8 @@ class Search {
 		 * SEARCH AND DESTROY NITWELVE
 		 */
 		
+		kSwap(x_original,solutions,Co,Cu,Room_id,Room_cap,p,d);
+		
 		/*
 		for(int i = 0; i < unassigned.length;i++) {
 			unassigned[i] = Co[i].getNr_Lec();
@@ -112,20 +125,21 @@ class Search {
 				}
 			}
 			unassigned[i] = unassigned[i]-temp;
-			//System.out.println(Co[i].getCourse_nr() + ": " + unassigned[i]);
 		}
 		
-		for (int i = 0; i < x.length; i++) {
-			for(int j = 0; j < x[i].length; j++) {
-				for (int k = 0; k < x[i][j].length;k++){
-					if (x_original[i][j][k] == 1) {
-						for(int l = 0; l <x[i].length; l++) {
-							x_new = generateX(x);
-							x_new[i][j][k] = 0;
-							if(l != j) {
-								x_new[i][l][k] = 1;
-								if(available(x_new,i,j,l,k,k,Co,Cu,Room_id,Room_cap,p,d) == true) {
-									solutions.add(x_new);
+		for (int[][][] sol: solutions) {
+			for (int i = 0; i < x.length; i++) {
+				for(int j = 0; j < x[i].length; j++) {
+					for (int k = 0; k < x[i][j].length;k++){
+						if (x_original[i][j][k] == 1) {
+							for(int l = 0; l <x[i].length; l++) {
+								x_new = generateX(sol);
+								x_new[i][j][k] = 0;
+								if(l != j) {
+									x_new[i][l][k] = 1;
+									if(available(x_new,i,j,l,k,k,Co,Cu,Room_id,Room_cap,p,d) == true) {
+										newsol1.add(x_new);
+									}
 								}
 							}
 						}
@@ -133,7 +147,6 @@ class Search {
 				}
 			}
 		}
-		System.out.println(solutions.size());
 		
 		
 		for (int[][][] sol: solutions) {
@@ -147,7 +160,7 @@ class Search {
 								if(l != k) {
 									x_new[i][j][l] = 1;
 									if(available(x_new,i,j,j,k,l,Co,Cu,Room_id,Room_cap,p,d) == true) {
-										solutions.add(x_new);
+										newsol2.add(x_new);
 									}
 								}
 							}
@@ -156,11 +169,9 @@ class Search {
 				}
 			}
 		}
-		*/
-		//System.out.println(solutions.size());
-		
-		kSwap(x_original,solutions,Co,Cu,Room_id,Room_cap,p,d);
-		//System.out.println(solutions.size());
+		solutions.addAll(newsol1);
+		solutions.addAll(newsol2);*/
+
 	}
 	
 	public boolean available (int [][][] x,int i, int j,int j2, int r1, int r2, Course[] Co, Curricula[] Cu, String [] Room_id, int [] Room_cap, int p, int d) {
@@ -288,13 +299,14 @@ class Search {
 											x_new[l][j][k] = 1;
 											x_new[i][m][n] = 1;
 											
-											int [] o = new int [6];
+											int [] o = new int [7];
 											o[0] = i;
 											o[1] = j;
 											o[2] = k;
 											o[3] = l;
 											o[4] = m;
 											o[5] = n;
+											o[6] = 1; // 1 for course swap
 											
 											if(available(x_new,l,j,j,n,k,Co,Cu,Room_id,Room_cap,p,d) == true && available(x_new,i,m,m,n,k,Co,Cu,Room_id,Room_cap,p,d) == true ) {
 												newsol.add(x_new);
@@ -309,13 +321,15 @@ class Search {
 									x_new[i][j][k] = 0;
 									x_new[l][j][k] = 1;
 									
-									int [] o = new int [6];
+									int [] o = new int [7];
 									o[0] = i;
 									o[1] = j;
 									o[2] = k;
 									o[3] = l;
 									o[4] = j;
 									o[5] = k;
+									o[6] = 0; // 0 for unassigned
+									
 									
 									if(available(x_new,l,j,j,k,k,Co,Cu,Room_id,Room_cap,p,d) == true && available(x_new,i,j,j,k,k,Co,Cu,Room_id,Room_cap,p,d) == true ) {
 										newsol.add(x_new);
@@ -329,6 +343,8 @@ class Search {
 			}
 		}
 		solutions.addAll(newsol);
+		//System.out.println("Sol Size: " + solutions.size());
+		//System.out.println("Sol Size: " + swap_change.size());
 	}
 	
 	
@@ -464,10 +480,15 @@ class Search {
 	public void sol_change (int i) {
 		int [] sc = swap_change.get(i);
 		for (int [][][] sol: solutions) {
-			sol[sc[0]][sc[1]][sc[2]] = 0;
-			sol[sc[3]][sc[4]][sc[5]] = 0;
-			sol[sc[3]][sc[1]][sc[2]] = 1;
-			sol[sc[1]][sc[4]][sc[5]] = 1;
+			if (sc[6] == 1) {
+				sol[sc[0]][sc[1]][sc[2]] = 0;
+				sol[sc[3]][sc[4]][sc[5]] = 0;
+				sol[sc[3]][sc[1]][sc[2]] = 1;
+				sol[sc[1]][sc[4]][sc[5]] = 1;
+			} else if (sc[6] == 0) {
+				sol[sc[0]][sc[1]][sc[2]] = 0;
+				sol[sc[3]][sc[1]][sc[2]] = 1;
+			}
 		}
 	}
 }
