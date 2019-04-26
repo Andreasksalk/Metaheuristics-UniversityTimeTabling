@@ -81,6 +81,26 @@ class dataReader {
 				continue;
 			} in.close();
 		}
+		
+		//ArrayList <ArrayList<Integer>> CoCu = new ArrayList <ArrayList <Integer>>();
+		for(int c = 0; c< Co.length; c++) {
+			for(int h = 0; h < Cur.length; h++) {
+				for(int o = 0; o < Cur[h].getNum_courses(); o++) {
+					if(Cur[h].getCourse_nr().get(o).equals(Co[c].getCourse_nr())) {
+						ArrayList <Integer> IndexCo = new ArrayList <Integer>();
+						for(String cos: Cur[h].getCourse_nr()) {
+							for(int n = 0; n < Co.length; n++) {
+								if(cos.equals(Co[n].getCourse_nr())) {
+									IndexCo.add(n);
+								}
+							}
+						}
+						Co[c].setCoCu(IndexCo);
+					}
+				}
+			}	
+		}
+		
 	}
 	
 	public Course[] getCourses() {
