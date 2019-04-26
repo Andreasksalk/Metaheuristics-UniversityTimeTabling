@@ -1,3 +1,5 @@
+import java.util.ArrayList;
+
 class Course {
 	private String Course_nr;
 	private String Lecture_nr;
@@ -6,6 +8,7 @@ class Course {
 	private int nr_students;
 	private int[] bin_con;
 	private int index;
+	private ArrayList <ArrayList<Integer>> CoCu = new ArrayList <ArrayList<Integer>>();
 	
 	public Course() {
 		Course_nr = "";
@@ -66,4 +69,13 @@ class Course {
 	public int getIndex() {
 		return index;
 	}
+	
+	public void setCoCu(ArrayList<Integer> CuS) {
+		CoCu.add(CuS);
+	}
+	
+	public ArrayList<ArrayList<Integer>> getCoCu(){
+		return CoCu;
+	}
+	
 }

@@ -1,3 +1,5 @@
+import java.util.ArrayList;
+
 class FCFS {
 	
 	int [][][] x;
@@ -29,22 +31,7 @@ class FCFS {
 					if (Room_cap[l]<course.getNr_students()) {
 						continue roomLoop;
 					}
-					for (int c = 0; c< Co.length;c++) {
-						if(x[c][k][l] == 0) {
-							continue;
-						}
-						if (x[c][k][l] == 1 && Co[c].getLecture_nr() == course.getLecture_nr() && Co[c].getCourse_nr() != course.getCourse_nr()) {
-							continue periodLoop;
-						}
-
-						for (int h = 0; h < Cu.length; h++) {
-							for(int o =0; o < Cu[h].getNum_courses();o++) {
-								if(x[c][k][l] == 1 && Cu[h].getCourse_nr().get(o) == course.getCourse_nr()) {
-									continue periodLoop;
-								}
-							}
-						}
-					}
+					
 					
 					// Checking constraint matrix for availability
 					if (course.getBin_con()[k] == 0) {
@@ -56,6 +43,27 @@ class FCFS {
 							continue roomLoop;
 						}
 					}
+					
+					//Checking if a lecturer is teaching a course at the same time slot
+					for(int n = 0; n < x.length; n++) {
+						for(int r = 0; r < x[0][0].length; r++) {
+							if(x[n][k][r] == 1 && Co[n].getLecture_nr().equals(course.getLecture_nr()) && !Co[n].getCourse_nr().equals(course.getCourse_nr())) {
+								continue periodLoop;
+							}
+						}
+					}
+					
+					//Checking if a course in the same curriculum is going on at the same time slot
+					for(ArrayList<Integer> CoS: course.getCoCu()) {
+						for(int c: CoS) {
+							for(int r = 0; r < x[0][0].length; r++) {
+								if(x[c][k][r] == 1) {
+									continue periodLoop;
+								}
+							}
+						}
+					}
+					
 					
 					// Checking if course in that time period is used in other rooms
 					for(int room = 0; room < Room_id.length; room ++) {
@@ -85,7 +93,5 @@ class FCFS {
 	public int[][][] returnX(){
 		return x;
 	}
-	
-	
 	
 }
