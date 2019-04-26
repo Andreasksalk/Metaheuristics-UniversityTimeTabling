@@ -3,6 +3,7 @@ import java.util.Arrays;
 
 class Search {
 	int [][][] x_original;
+	int [][][] x_best;
 	int [] unassigned;
 	ArrayList <int [][][]> solutions = new ArrayList <int[][][]> ();
 	int con1 = 0;
@@ -79,12 +80,14 @@ class Search {
 			
 		}
 		
-		/*System.out.println("Con1: " + con1);
+		System.out.println("Con1: " + con1);
 		System.out.println("Con2: " + con2);
 		System.out.println("Con3: " + con3);
 		System.out.println("Con4: " + con4);
 		System.out.println("Con5: " + con5);
-		System.out.println("Con6: " + con6); */
+		System.out.println("Con6: " + con6);
+		
+		x_best = generateX(best_x);
 	}
 	
 	public void Neighbourhood(int [][][] x, Course[] Co, Curricula[] Cu, String [] Room_id, int [] Room_cap, int p, int d) {
@@ -199,26 +202,6 @@ class Search {
 					feasible = false;
 					break periodLoop;
 				}
-				for (int c = 0; c< Co.length;c++) {
-					if(x[c][k][l] == 0) {
-						continue;
-					}
-					if (x[c][k][l] == 1 && Co[c].getLecture_nr() == Co[i].getLecture_nr() && Co[c].getCourse_nr() != Co[i].getCourse_nr()) {
-						con2++;
-						feasible = false;
-						break periodLoop;
-					}
-
-					for (int h = 0; h < Cu.length; h++) {
-						for(int o =0; o < Cu[h].getNum_courses();o++) {
-							if(x[c][k][l] == 1 && Cu[h].getCourse_nr().get(o) == Co[i].getCourse_nr()) {
-								con3++;
-								feasible = false;
-								break periodLoop;
-							}
-						}
-					}
-				}
 				
 				// Checking constraint matrix for availability
 				if (Co[i].getBin_con()[k] == 0) {
@@ -236,6 +219,27 @@ class Search {
 					}
 				}
 				*/
+				
+				//Checking if a lecturer is teaching a course at the same time slot
+				for(int n = 0; n < x.length; n++) {
+					for(int r = 0; r < x[0][0].length; r++) {
+						if(x[n][k][r] == 1 && Co[n].getLecture_nr().equals(Co[i].getLecture_nr()) && !Co[n].getCourse_nr().equals(Co[i].getCourse_nr())) {
+							break periodLoop;
+						}
+					}
+				}
+				
+				//Checking if a course in the same curriculum is going on at the same time slot
+				for(ArrayList<Integer> CoS: Co[i].getCoCu()) {
+					for(int c: CoS) {
+						for(int r = 0; r < x[0][0].length; r++) {
+							if(x[c][k][r] == 1) {
+								break periodLoop;
+							}
+						}
+					}
+				}
+				
 				
 				// Checking if course in that time period is used in other rooms
 				for(int room = 0; room < Room_id.length; room ++) {
@@ -494,6 +498,9 @@ class Search {
 				sol[sc[3]][sc[1]][sc[2]] = 1;
 			}
 		}
+	}
+	public int[][][] returnX(){
+		return x_best;
 	}
 }
 

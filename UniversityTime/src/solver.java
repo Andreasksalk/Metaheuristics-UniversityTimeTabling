@@ -31,7 +31,7 @@ public class solver {
 		FCFS sol1 = new FCFS(Co,Cu,Room_id,Room_cap,p,d);
 		x = sol1.returnX();
 		Search sol2 = new Search(x,Co,Cu,Room_id,Room_cap,p,d);
-		//writeSol("test01.sol");
+		writeSol("test01.sol", sol2.returnX());
 		//x2 = sol2.returnX();
 		//System.out.print(x.length);
 		/*int day = 0;
@@ -69,7 +69,7 @@ public class solver {
 	}
 	
 	
-	public void writeSol (String filename) {
+	public void writeSol (String filename, int [][][] x) {
 		BufferedWriter writer = null;
 		
 		try {
