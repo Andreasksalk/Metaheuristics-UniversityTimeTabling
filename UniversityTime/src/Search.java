@@ -25,6 +25,14 @@ class Search {
 		
 		int min_i = 0;
 		
+		/*for (int i = 0; i<x.length; i++) {
+			System.out.print("Course " + i + ":");
+			for (int j = 0; j<x[0].length; j++) {
+				System.out.print(Co[i].getBin_con()[j] + " ");
+			}
+			System.out.println();
+		}*/
+		
 		System.out.println("Construction: " + min_obj);
 		int num_swaps = 0;
 		int num_n = 0;
@@ -39,16 +47,16 @@ class Search {
 			
 			int iter2 = 1;
 			while (iter2 - 1 < 2) {
-				int i = 0;
+				int q = 0;
 				double [] ObjVals;
 				ObjVals = new double [solutions.size()];
 				for (int [][][] sol: solutions) {
-					ObjVals[i] = ObjValue(sol, Co, Cu, Room_id, Room_cap, p, d);
-					if (ObjVals[i] < min_obj) {
-						min_obj = ObjVals[i];
-						min_i = i;
+					ObjVals[q] = ObjValue(sol, Co, Cu, Room_id, Room_cap, p, d);
+					if (ObjVals[q] < min_obj) {
+						min_obj = ObjVals[q];
+						min_i = q;
 					}
-					i++;
+					q++;
 				}
 				
 				if (min_obj < old_obj) {
@@ -56,7 +64,7 @@ class Search {
 					num_swaps++;
 					System.out.println("Best solution: " + min_obj);
 					System.out.println("Number of swaps: " + num_swaps);
-					//System.out.println("Number of swaps in neighborhood: " + num_swaps_n);
+					System.out.println("Number of swaps in neighborhood: " + num_swaps_n);
 					/*System.out.println("Course 1:");
 					System.out.println("Course: " + sc[0] + ", Period: " + sc[1] + ", Room: " + sc[2]);
 					System.out.println("Course 2:");
@@ -71,7 +79,7 @@ class Search {
 				
 				best_x = solutions.get(min_i);
 				old_obj = min_obj;
-				//sol_change(min_i);
+				sol_change(min_i);
 				
 			}
 			if (min_obj >= iter_min) {
@@ -81,13 +89,12 @@ class Search {
 			
 		}
 		
-		System.out.println("Number of soutions generated: " + all_sol);
+		System.out.println("Number of solutions generated: " + all_sol);
 		System.out.println("Con1: " + con1);
 		System.out.println("Con2: " + con2);
 		System.out.println("Con3: " + con3);
 		System.out.println("Con4: " + con4);
 		System.out.println("Con5: " + con5);
-		System.out.println("Con6: " + con6);
 		
 		x_best = generateX(best_x);
 	}
@@ -184,79 +191,56 @@ class Search {
 
 	}
 	
-	public boolean available (int [][][] x,int i, int j,int j2, int r1, int r2, Course[] Co, Curricula[] Cu, String [] Room_id, int [] Room_cap, int p, int d) {
+	public boolean available (int [][][] x,int i, int j, int r, Course[] Co, Curricula[] Cu, String [] Room_id, int [] Room_cap, int p, int d) {
 		
-		boolean feasible = true;
-		ArrayList <Integer> index = new ArrayList <Integer> ();
-		ArrayList <Integer> index2 = new ArrayList <Integer> ();
+		boolean feasible = false;
 		
-		index.add(j);
-		index.add(j2);
-		index2.add(r1);
-		index2.add(r2);
-		//x[class][period1][room] -> x[class][period2][room] 
+		//x[class][period1][room] -> x[i][j][r] 
+		if (Room_cap[r]<Co[i].getNr_students()) {
+			con1++;
+			feasible = false;
+			return feasible;
+		}
+			
 		
-
+		if (Co[i].getBin_con()[j] == 0) {
+			con2++;
+			feasible = false;
+			return feasible;
+		}
 		
-		periodLoop:
-		for (Integer k: index) {
-			for (Integer l: index2) {
-				// Checking if the Room has capacity for the students
-				if (Room_cap[l]<Co[i].getNr_students()) {
-					con1++;
+		for(int n = 0; n < x.length; n++) {
+			for(int room = 0; room < x[0][0].length; room++) {
+				if(x[n][j][room] == 1 && Co[n].getLecture_nr().equals(Co[i].getLecture_nr()) && !Co[n].getCourse_nr().equals(Co[i].getCourse_nr())) {
 					feasible = false;
-					break periodLoop;
+					con3++;
+					return feasible;
 				}
-				
-				// Checking constraint matrix for availability
-				if (Co[i].getBin_con()[k] == 0) {
-					con4++;
-					feasible = false;
-					break periodLoop;
-				}
-				// Checking if another course is using the room
-				/*
-				for (int m=0; m<Co.length; m++) {
-					if (x[m][k][l]==1) {
-						con5++;
-						feasible = false;
-					break periodLoop;
-					}
-				}
-				*/
-				
-				//Checking if a lecturer is teaching a course at the same time slot
-				for(int n = 0; n < x.length; n++) {
-					for(int r = 0; r < x[0][0].length; r++) {
-						if(x[n][k][r] == 1 && Co[n].getLecture_nr().equals(Co[i].getLecture_nr()) && !Co[n].getCourse_nr().equals(Co[i].getCourse_nr())) {
-							break periodLoop;
-						}
-					}
-				}
-				
-				//Checking if a course in the same curriculum is going on at the same time slot
-				for(ArrayList<Integer> CoS: Co[i].getCoCu()) {
-					for(int c: CoS) {
-						for(int r = 0; r < x[0][0].length; r++) {
-							if(x[c][k][r] == 1) {
-								break periodLoop;
-							}
-						}
-					}
-				}
-				
-				
-				// Checking if course in that time period is used in other rooms
-				for(int room = 0; room < Room_id.length; room ++) {
-					if (x[i][k][room] == 1 && room != l) {
-						con6++;
-						feasible = false;
-						break periodLoop;
-					}
-				}		
 			}
 		}
 		
+		//Checking if a course in the same curriculum is going on at the same time slot
+		for(ArrayList<Integer> CoS: Co[i].getCoCu()) {
+			for(int c: CoS) {
+				for(int room = 0; room < x[0][0].length; room++) {
+					if(x[c][j][room] == 1 && c !=i) {
+						feasible = false;
+						con4++;
+						return feasible;
+					}
+				}
+			}
+		}
+		
+		// Checking if course in that time period is used in other rooms
+		for(int room = 0; room < Room_id.length; room ++) {
+			if (x[i][j][room] == 1 && room != r) {
+				con5++;
+				feasible = false;
+				return feasible;
+			}
+		}
+		feasible = true;
 		return feasible;
 	}
 	
@@ -279,7 +263,6 @@ class Search {
 	}*/
 	
 	public void kSwap(int [][][] x, ArrayList<int [][][]> solutions, Course[] Co, Curricula[] Cu, String [] Room_id, int [] Room_cap, int p, int d){
-		int [][][] x_new = new int [x.length][x[0].length][x[0][0].length];
 		ArrayList <int [][][]> newsol = new ArrayList <int[][][]> ();
 		for (int[][][] sol: solutions) {
 			
@@ -304,11 +287,12 @@ class Search {
 								for(int m = 0; m < x[l].length; m++) {
 									for (int n = 0; n < x[l][m].length;n++){
 										if (x_original[l][m][n] == 1 && l != i) {
-											x_new = generateX(sol);
+											int [][][] x_new = generateX(sol);
 											x_new[i][j][k] = 0;
 											x_new[l][m][n] = 0;
 											x_new[l][j][k] = 1;
 											x_new[i][m][n] = 1;
+											
 											
 											int [] o = new int [7];
 											o[0] = i;
@@ -319,7 +303,7 @@ class Search {
 											o[5] = n;
 											o[6] = 1; // 1 for course swap
 											
-											if(available(x_new,l,j,m,n,k,Co,Cu,Room_id,Room_cap,p,d) == true && available(x_new,i,m,j,n,k,Co,Cu,Room_id,Room_cap,p,d) == true ) {
+											if(available(x_new,l,j,k,Co,Cu,Room_id,Room_cap,p,d) == true && available(x_new,i,m,n,Co,Cu,Room_id,Room_cap,p,d) == true ) {
 												newsol.add(x_new);
 												swap_change.add(o);
 											}
@@ -330,6 +314,7 @@ class Search {
 							for (int l = 0; l < x.length; l++) {
 								if (unassigned[l] > 0 && l != i) {
 									for (int q = 0; q < unassigned[l]; q++) {
+										int [][][] x_new = generateX(sol);
 										x_new[i][j][k] = 0;
 										x_new[l][j][k] = 1;
 									
@@ -343,9 +328,9 @@ class Search {
 										o[6] = 0; // 0 for unassigned
 									
 									
-										if(available(x_new,l,j,j,k,k,Co,Cu,Room_id,Room_cap,p,d) == true && available(x_new,i,j,j,k,k,Co,Cu,Room_id,Room_cap,p,d) == true ) {
-											newsol.add(x_new);
-											swap_change.add(o);
+										if(available(x_new,l,j,k,Co,Cu,Room_id,Room_cap,p,d) == true) {
+											//newsol.add(x_new);
+											//swap_change.add(o);
 										}
 									}
 								}
