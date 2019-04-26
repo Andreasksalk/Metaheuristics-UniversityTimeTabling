@@ -79,7 +79,7 @@ class Search {
 				
 				best_x = solutions.get(min_i);
 				old_obj = min_obj;
-				sol_change(min_i);
+				//sol_change(min_i);
 				
 			}
 			if (min_obj >= iter_min) {
@@ -125,7 +125,7 @@ class Search {
 		 * SEARCH AND DESTROY NITWELVE
 		 */
 		
-		kSwap(x_original,solutions,Co,Cu,Room_id,Room_cap,p,d);
+		kSwap(x_original,Co,Cu,Room_id,Room_cap,p,d);
 		
 		System.out.println("Number of solutions in neighborhood: " + solutions.size());
 		all_sol += solutions.size();
@@ -262,11 +262,11 @@ class Search {
 		return x_new;
 	}*/
 	
-	public void kSwap(int [][][] x, ArrayList<int [][][]> solutions, Course[] Co, Curricula[] Cu, String [] Room_id, int [] Room_cap, int p, int d){
+	public void kSwap(int [][][] x, Course[] Co, Curricula[] Cu, String [] Room_id, int [] Room_cap, int p, int d){
 		ArrayList <int [][][]> newsol = new ArrayList <int[][][]> ();
-		for (int[][][] sol: solutions) {
+		//for (int[][][] sol: solutions) {
 			
-			for(int i = 0; i < unassigned.length;i++) {
+			/*for(int i = 0; i < unassigned.length;i++) {
 				unassigned[i] = Co[i].getNr_Lec();
 				int temp = 0;
 				for(int j = 0; j < x[0].length; j++) {
@@ -277,7 +277,7 @@ class Search {
 					}
 				}
 				unassigned[i] = unassigned[i]-temp;
-			}
+			}*/
 			
 			for (int i = 0; i < x.length; i++) {
 				for(int j = 0; j < x[i].length; j++) {
@@ -287,7 +287,7 @@ class Search {
 								for(int m = 0; m < x[l].length; m++) {
 									for (int n = 0; n < x[l][m].length;n++){
 										if (x_original[l][m][n] == 1 && l != i) {
-											int [][][] x_new = generateX(sol);
+											int [][][] x_new = generateX(solutions.get(0));
 											x_new[i][j][k] = 0;
 											x_new[l][m][n] = 0;
 											x_new[l][j][k] = 1;
@@ -311,7 +311,7 @@ class Search {
 									}
 								}
 							}
-							for (int l = 0; l < x.length; l++) {
+							/*for (int l = 0; l < x.length; l++) {
 								if (unassigned[l] > 0 && l != i) {
 									for (int q = 0; q < unassigned[l]; q++) {
 										int [][][] x_new = generateX(sol);
@@ -334,12 +334,12 @@ class Search {
 										}
 									}
 								}
-							}
+							}*/
 						}
 					}
 				}
 			}
-		}
+		//}
 		solutions.addAll(newsol);
 		//System.out.println("Sol Size: " + solutions.size());
 		//System.out.println("Sol Size: " + swap_change.size());
