@@ -13,6 +13,7 @@ class Search {
 	int con5 = 0;
 	int con6 = 0;
 	ArrayList <int []> swap_change = new ArrayList <int[]> ();
+	int all_sol = 0;
 	
 	public Search(int [][][] x, Course[] Co, Curricula[] Cu, String [] Room_id, int [] Room_cap, int p, int d) {
 		
@@ -80,6 +81,7 @@ class Search {
 			
 		}
 		
+		System.out.println("Number of soutions generated: " + all_sol);
 		System.out.println("Con1: " + con1);
 		System.out.println("Con2: " + con2);
 		System.out.println("Con3: " + con3);
@@ -117,6 +119,9 @@ class Search {
 		 */
 		
 		kSwap(x_original,solutions,Co,Cu,Room_id,Room_cap,p,d);
+		
+		System.out.println("Number of solutions in neighborhood: " + solutions.size());
+		all_sol += solutions.size();
 		
 		/*
 		for(int i = 0; i < unassigned.length;i++) {
@@ -314,7 +319,7 @@ class Search {
 											o[5] = n;
 											o[6] = 1; // 1 for course swap
 											
-											if(available(x_new,l,j,j,n,k,Co,Cu,Room_id,Room_cap,p,d) == true && available(x_new,i,m,m,n,k,Co,Cu,Room_id,Room_cap,p,d) == true ) {
+											if(available(x_new,l,j,m,n,k,Co,Cu,Room_id,Room_cap,p,d) == true && available(x_new,i,m,j,n,k,Co,Cu,Room_id,Room_cap,p,d) == true ) {
 												newsol.add(x_new);
 												swap_change.add(o);
 											}
