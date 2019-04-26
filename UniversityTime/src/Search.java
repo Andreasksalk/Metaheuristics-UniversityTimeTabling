@@ -29,14 +29,14 @@ class Search {
 
 		while (iter - 1 < 2) {
 			num_n++;
-			System.out.println("Number of neighborhoods: " + num_n);
+			//System.out.println("Number of neighborhoods: " + num_n);
 			Neighbourhood(best_x,Co,Cu,Room_id,Room_cap,p,d);
 			int num_swaps_n = 0;
 			
 			min_i = 0;
 			
 			int iter2 = 1;
-			while (iter2 - 1 < 1) {
+			while (iter2 - 1 < 2) {
 				int i = 0;
 				double [] ObjVals;
 				ObjVals = new double [solutions.size()];
@@ -54,7 +54,7 @@ class Search {
 					num_swaps++;
 					System.out.println("Best solution: " + min_obj);
 					System.out.println("Number of swaps: " + num_swaps);
-					System.out.println("Number of swaps in neighborhood: " + num_swaps_n);
+					//System.out.println("Number of swaps in neighborhood: " + num_swaps_n);
 					/*System.out.println("Course 1:");
 					System.out.println("Course: " + sc[0] + ", Period: " + sc[1] + ", Room: " + sc[2]);
 					System.out.println("Course 2:");
@@ -62,13 +62,15 @@ class Search {
 					
 				}
 				
+				if (min_obj >= old_obj) {
+					iter2++;
+				}
+				
+				
 				best_x = solutions.get(min_i);
 				old_obj = min_obj;
 				//sol_change(min_i);
 				
-				if (min_obj >= old_obj) {
-					iter2++;
-				}
 			}
 			if (min_obj >= iter_min) {
 				iter++;
@@ -318,22 +320,24 @@ class Search {
 							}
 							for (int l = 0; l < x.length; l++) {
 								if (unassigned[l] > 0 && l != i) {
-									x_new[i][j][k] = 0;
-									x_new[l][j][k] = 1;
+									for (int q = 0; q < unassigned[l]; q++) {
+										x_new[i][j][k] = 0;
+										x_new[l][j][k] = 1;
 									
-									int [] o = new int [7];
-									o[0] = i;
-									o[1] = j;
-									o[2] = k;
-									o[3] = l;
-									o[4] = j;
-									o[5] = k;
-									o[6] = 0; // 0 for unassigned
+										int [] o = new int [7];
+										o[0] = i;
+										o[1] = j;
+										o[2] = k;
+										o[3] = l;
+										o[4] = j;
+										o[5] = k;
+										o[6] = 0; // 0 for unassigned
 									
 									
-									if(available(x_new,l,j,j,k,k,Co,Cu,Room_id,Room_cap,p,d) == true && available(x_new,i,j,j,k,k,Co,Cu,Room_id,Room_cap,p,d) == true ) {
-										newsol.add(x_new);
-										swap_change.add(o);
+										if(available(x_new,l,j,j,k,k,Co,Cu,Room_id,Room_cap,p,d) == true && available(x_new,i,j,j,k,k,Co,Cu,Room_id,Room_cap,p,d) == true ) {
+											newsol.add(x_new);
+											swap_change.add(o);
+										}
 									}
 								}
 							}
