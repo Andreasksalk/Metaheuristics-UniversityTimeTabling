@@ -35,7 +35,7 @@ public class solver {
 		ALNS sol3 = new ALNS(x,Co,Cu,Room_id,Room_cap,p,d);
 		x = sol3.returnX();
 		
-		writeSol("test01remove.sol", x);
+		writeSol("test01.sol", x);
 		//x2 = sol2.returnX();
 		//System.out.print(x.length);
 		int day = 0;

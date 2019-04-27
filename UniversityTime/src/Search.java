@@ -353,8 +353,8 @@ class Search {
 		int [] P = new int [Co.length]; // number of time a course changes room
 		int [] W = new int [Co.length]; // number of days courses are below min_work_days 
 		int [][] A = new int [Cu.length][x[0].length]; // curriculum in a time slot has secluded lecture
-		
-		for(int i = 0; i < U.length;i++) {
+		int [] Cost = new int [Co.length];
+		for(int i = 0; i < Co.length;i++) {
 			U[i] = Co[i].getNr_Lec();
 			W[i] = Co[i].getMin_days();
 			
@@ -362,8 +362,9 @@ class Search {
 			int tempU = 0;
 			int tempP = 0;
 			int tempW = 0;
-			int tempDay = 0;
 			String tempRoom = "";
+			ArrayList <String> RoomCo = new ArrayList <String>();
+			ArrayList <Integer> days = new ArrayList <Integer>();
 			for(int j = 0; j < x[0].length; j++) {
 				for(int k = 0; k < x[0][0].length;k++) {
 					if(x[i][j][k]==1) {
@@ -371,33 +372,39 @@ class Search {
 					}
 					if (tempRoom == "" && x[i][j][k] == 1) {
 						tempRoom = Room_id[k];
+						RoomCo.add(tempRoom);
 					}
-					if(x[i][j][k] == 1 && Room_id[k] != tempRoom) {
+					if(x[i][j][k] == 1 && Room_id[k] != tempRoom && !RoomCo.contains(Room_id[k])) {
 						tempRoom = Room_id[k];
 						tempP += 1;
+						RoomCo.add(tempRoom);
 					}
-					if(j % p == 0) {
-						tempDay = 0;
-					}
-					if (x[i][j][k] == 1 && tempDay == 0) {
-						tempDay = 1;
+					if (x[i][j][k] == 1 && !days.contains((j - j%p)/p)) {
+						days.add((j - j%p)/p);
 						tempW += 1;
 					}
 				}
 			}
-			U[i] = U[i]-tempU;
-			if (U[i] < 0) {
+			//System.out.println(days);
+			if (U[i]-tempU < 0) {
 				U[i] = 0;
+			} else {
+			U[i] = U[i]-tempU;
 			}
+			
 			P[i] = tempP;
-			W[i] = W[i] - tempW;
-			if (W[i] < 0) {
+			if((W[i] - tempW) < 0) {
 				W[i] = 0;
+			} else {
+			//System.out.println(W[i] + " " + tempW);
+			W[i] = W[i] - tempW;
 			}
 			
 			Obj+= 10*U[i];
 			Obj+= 1*P[i];
 			Obj+= 5*W[i];
+			
+			Cost[i] = 10*U[i]+1*P[i]+5*W[i];
 			
 		}
 		for(int j = 0; j< x[0].length; j++) {
@@ -406,71 +413,83 @@ class Search {
 				for(int i = 0; i < x.length; i++) {
 					if(x[i][j][k] == 1 && Room_cap[k] < Co[i].getNr_students()) {
 						tempV += Co[i].getNr_students() - Room_cap[k];
-							if (tempV < 0) {
-								tempV = 0;
-							}
+						if (tempV < 0) {
+							Cost[i] += tempV;
+						}
 					}
 				}
+				if (tempV < 0) {
+					V[j][k] = 0;
+				} else {
 				V[j][k] = tempV;
+				}
 				Obj+= 1*V[j][k];
 			}
 		}
 		
-		for(int q = 0; q <Cu.length; q++) {
+		for(int q = 0; q < Cu.length; q++) {
 			int dayCounter = 0;
-			for(int j = 0; j < x[0].length; j++) {
-				int tempA = 0;
-				int tempt = 0;
+			ArrayList <Integer> CoIdx = new ArrayList <Integer>();
+			for(String Course: Cu[q].getCourse_nr()) {
+				for(int i = 0; i < x.length; i++) {
+					//System.out.println(C);
+					if(Course.equals(Co[i].getCourse_nr()) && !CoIdx.contains(i)) {
+						CoIdx.add(i);
+					}
+				}
+			}
+			for (int j = 0; j < x[0].length; j++) {
+				int sumQ = 0;
+				dayCounter = (j-j%p)/p;
+				int index = -1;
 				int tempt2 = 1;
-				if(j% p == 0) {
-					dayCounter += 1;
-				}
-				for(String Course: Cu[q].getCourse_nr()) {
-					int index = -1;
-					for(int i = 0; i < x.length; i++) {
-						//System.out.println(Course + " " + Co[i].getCourse_nr());
-						//System.out.println(C);
-						if(Course.equals(Co[i].getCourse_nr())) {
+				int tempA = 0;
+				roomLoop:
+				for(int k = 0; k < x[0][0].length; k++) {
+					for (int i: CoIdx) {
+						if (x[i][j][k] == 1)
+							sumQ += 1;
 							index = i;
-						}
+							break roomLoop;
 					}
-					for(int k = 0; k < x[0][0].length; k++) {
-						//System.out.println(j + " " + (dayCounter)*p);
-						if(x[index][j][k] ==1) {
-							tempt = 1;
+				}
+				if (sumQ == 1) {
+					for(int k = 0; k <x[0][0].length;k++) {
+						for(int i: CoIdx) {
+							if (i != index) {
+							if(j - 1 < dayCounter*p && j+1 != d*p) {
+								if(x[i][j+1][k] == 0) {
+									tempt2 = 0;
+								}
+							} else if (j+1 >= (dayCounter+1)*p) {
+								if(x[i][j-1][k] == 0) {
+									tempt2 = 0;
+								}
+							} else if(j -1 >= dayCounter*p && j+1 < (dayCounter+1)*p) { 
+								if (x[i][j-1][k] == 0 && x[i][j+1][k] == 0) {
+									tempt2 = 0;
+								}
+							} else {
+								tempt2 = 1;
+							}
 						}
-						if(j - 1 < dayCounter*p && j+1 != d*p) {
-							if(x[index][j+1][k] == 0) {
-								tempt2 = 0;
-							}
-						} else if (j+1 >= (dayCounter)*p) {
-							if(x[index][j-1][k] == 0) {
-								tempt2 = 0;
-							}
-						} else if (x[index][j-1][k] == 0 && x[index][j+1][k] == 0) {
-							tempt2 = 0;
-						} else {
-							tempt2 = 1;
 						}
 					}
 				}
-				if (tempt == 1 && tempt2 == 0) {
+				if(sumQ == 1 && tempt2 == 0) {
 					tempA = 1;
 				}
 				A[q][j] = tempA;
-				Obj+= 2*A[q][j];
+				Obj+= 2* A[q][j];
+				
 			}
 		}
 		
-		/*for(int q = 0; q <Cu.length; q++) {
-			for(int j = 0; j < x[0].length; j++) {
-				System.out.print(A[q][j] + " ");
-			}
-			System.out.println();
-		}*/
 		
 		
 		return Obj;
+		
+	}
 		
 	}
 	
