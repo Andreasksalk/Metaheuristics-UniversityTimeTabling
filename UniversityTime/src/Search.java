@@ -1,5 +1,4 @@
 import java.util.ArrayList;
-import java.util.Arrays;
 
 class Search {
 	int [][][] x_original;
@@ -64,7 +63,7 @@ class Search {
 					num_swaps++;
 					System.out.println("Best solution: " + min_obj);
 					System.out.println("Number of swaps: " + num_swaps);
-					System.out.println("Number of swaps in neighborhood: " + num_swaps_n);
+					//System.out.println("Number of swaps in neighborhood: " + num_swaps_n);
 					/*System.out.println("Course 1:");
 					System.out.println("Course: " + sc[0] + ", Period: " + sc[1] + ", Room: " + sc[2]);
 					System.out.println("Course 2:");
@@ -271,7 +270,7 @@ class Search {
 				int temp = 0;
 				for(int j = 0; j < x[0].length; j++) {
 					for(int k = 0; k < x[0][0].length;k++) {
-						if(sol[i][j][k]==1) {
+						if(x[i][j][k]==1) {
 							temp+= 1;
 						}
 					}
@@ -311,10 +310,10 @@ class Search {
 									}
 								}
 							}
-							/*for (int l = 0; l < x.length; l++) {
+							/*	for (int l = 0; l < x.length; l++) {
 								if (unassigned[l] > 0 && l != i) {
 									for (int q = 0; q < unassigned[l]; q++) {
-										int [][][] x_new = generateX(sol);
+										int [][][] x_new = generateX(x);
 										x_new[i][j][k] = 0;
 										x_new[l][j][k] = 1;
 									
@@ -477,7 +476,9 @@ class Search {
 	
 	public void sol_change (int i) {
 		int [] sc = swap_change.get(i);
-		for (int [][][] sol: solutions) {
+		
+		for (int j = 0; j <solutions.size(); j++) {
+			int [][][] sol = solutions.get(j);
 			if (sc[6] == 1) {
 				sol[sc[0]][sc[1]][sc[2]] = 0;
 				sol[sc[3]][sc[4]][sc[5]] = 0;

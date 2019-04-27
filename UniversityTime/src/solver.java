@@ -30,13 +30,17 @@ public class solver {
 	public void solve() {
 		FCFS sol1 = new FCFS(Co,Cu,Room_id,Room_cap,p,d);
 		x = sol1.returnX();
-		Search sol2 = new Search(x,Co,Cu,Room_id,Room_cap,p,d);
-		writeSol("test01.sol", sol2.returnX());
+		//Search sol2 = new Search(x,Co,Cu,Room_id,Room_cap,p,d);
+		//x = sol2.returnX();
+		ALNS sol3 = new ALNS(x,Co,Cu,Room_id,Room_cap,p,d);
+		x = sol3.returnX();
+		
+		writeSol("test01remove.sol", x);
 		//x2 = sol2.returnX();
 		//System.out.print(x.length);
-		/*int day = 0;
+		int day = 0;
 		int period = 0;
-		for (int i = 0; i < x.length; i++) {
+		/*for (int i = 0; i < x.length; i++) {
 			day = 0;
 			period = 0;
 			for (int j = 0; j <x[i].length; j++) {
