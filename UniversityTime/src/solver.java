@@ -30,7 +30,7 @@ public class solver {
 	public void solve() {
 		FCFS sol1 = new FCFS(Co,Cu,Room_id,Room_cap,p,d);
 		x = sol1.returnX();
-		//Search sol2 = new Search(x,Co,Cu,Room_id,Room_cap,p,d);
+		//	Search sol2 = new Search(x,Co,Cu,Room_id,Room_cap,p,d);
 		//x = sol2.returnX();
 		ALNS sol3 = new ALNS(x,Co,Cu,Room_id,Room_cap,p,d);
 		x = sol3.returnX();

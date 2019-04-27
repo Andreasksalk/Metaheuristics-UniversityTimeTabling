@@ -14,6 +14,7 @@ class ALNS {
 	int con6 = 0;
 	ArrayList <int []> swap_change = new ArrayList <int[]> ();
 	int all_sol = 0;
+	ArrayList <int []> index_change = new ArrayList <int[]> ();
 	
 	
 	public ALNS (int [][][] x, Course[] Co, Curricula[] Cu, String [] Room_id, int [] Room_cap, int p, int d) {
@@ -21,25 +22,25 @@ class ALNS {
 		int [][][] x_t = generateX(x); // generateX not implemented
 		int [][][] x_b = generateX(x);
 		
-		System.out.println("Construction: " + ObjValue(x_b, Co, Cu, Room_id, Room_cap, p, d));
+		System.out.println("Construct: " + ObjValue(x_b, Co, Cu, Room_id, Room_cap, p, d));
 		x_best = random_removal(x_t,10);
-		System.out.println("Construction: " + ObjValue(x_best, Co, Cu, Room_id, Room_cap, p, d));
+		System.out.println("Remove: " + ObjValue(x_best, Co, Cu, Room_id, Room_cap, p, d));
 		x_best = insert(x_best, Co, Cu, Room_id, Room_cap, p, d);
-		System.out.println("Construction: " + ObjValue(x_best, Co, Cu, Room_id, Room_cap, p, d));
+		System.out.println("Final: " + ObjValue(x_best, Co, Cu, Room_id, Room_cap, p, d));
 		
-		while (iter < 100) {
+		//while (iter < 100) {
 			//rho = roulette_wheel(rho_plus, rho_minus);
 			//d = select("Set of destroy",rho); // Roulette wheel function and destroy functions not implemented
 			//r = select("Set of repair", rho); // Select not implemented
 			//x_t(r(d(x_t)));
 			//Search sol = new Search(x_t,Co,Cu,Room_id,Room_cap,p,d);
-			if (ObjValue(x_t,Co,Cu,Room_id,Room_cap,p,d) <= ObjValue(x_b,Co,Cu,Room_id,Room_cap,p,d)) {
-				x_b = x_t;
-				x_t = generateX(x_b);
-			}
+			//if (ObjValue(x_t,Co,Cu,Room_id,Room_cap,p,d) <= ObjValue(x_b,Co,Cu,Room_id,Room_cap,p,d)) {
+			//	x_b = x_t;
+			//	x_t = generateX(x_b);
+			//}
 			//update_w(rho_plus, rho_minus);
-			iter++;
-		}
+			//iter++;
+		//}
 	}
 	
 	public int [][][] insert (int [][][] x, Course[] Co, Curricula[] Cu, String [] Room_id, int [] Room_cap, int p, int d) {
@@ -54,48 +55,89 @@ class ALNS {
 		
 		int min_i = 0;
 
-		while (iter - 1 < 2) {
-			n_insert(best_x,Co,Cu,Room_id,Room_cap,p,d);
-			min_i = 0;
+		//while (iter < 1) {
+		n_insert(best_x,Co,Cu,Room_id,Room_cap,p,d);
+		System.out.println("Sol size: " + solutions.size());
+		min_i = 0;
 			
-			int iter2 = 1;
-			while (iter2 - 1 < 2) {
-				int q = 0;
-				double [] ObjVals;
-				ObjVals = new double [solutions.size()];
-				for (int [][][] sol: solutions) {
-					ObjVals[q] = ObjValue(sol, Co, Cu, Room_id, Room_cap, p, d);
-					if (ObjVals[q] < min_obj) {
-						min_obj = ObjVals[q];
-						min_i = q;
-					}
-					q++;
+		int iter2 = 1;
+		int old_sol = 0;
+		while (solutions.size() > 1 && solutions.size() != old_sol) {
+			old_sol = solutions.size();
+			min_i = 0;
+			int q = 0;
+			double [] ObjVals;
+			ObjVals = new double [solutions.size()];
+			for (int [][][] sol: solutions) {
+				ObjVals[q] = ObjValue(sol, Co, Cu, Room_id, Room_cap, p, d);
+				if (ObjVals[q] < min_obj) {
+					min_obj = ObjVals[q];
+					min_i = q;
+					//best_x = solutions.get(min_i);
 				}
-				
-				if (min_obj >= old_obj) {
-					iter2++;
-				}
-				
-				
+				q++;
+			}
+			
+			if (min_obj >= old_obj) {
+				iter2++;
+			}
+			
+			System.out.println("Sol size: " + solutions.size());
+			System.out.println("min obj: " + min_obj);
+			if (min_i != 0) {
 				best_x = solutions.get(min_i);
-				old_obj = min_obj;
-				
+				int [] change = index_change.get(min_i);
+				int t = 0;
+				ArrayList <int []> f = new ArrayList <int[]> ();
+				for (int [] c: index_change) {
+					if (c[1] == change[1] && c[2] == change[2]) {
+						solutions.remove(t);
+						f.add(c);
+						t = t-1;
+					}
+					t++;
+				}
+				index_change.removeAll(f);
+				ArrayList <int [][][]> a = new ArrayList <int[][][]> ();
+				int b = 0;
+				for (int [][][] sol: solutions) {
+					sol[change[0]][change[1]][change[2]] = 1;
+					if (available(sol,change[0],change[1],change[2],Co,Cu,Room_id,Room_cap,p,d) == false) {
+						a.add(sol);
+						index_change.remove(b);
+						b = b-1;
+					}
+					b++;
+				}
+				solutions.removeAll(a);
 			}
-			if (min_obj >= iter_min) {
-				iter++;
-			}
-			iter_min = min_obj;
+			old_obj = min_obj;
 			
 		}
+		if (min_obj >= iter_min) {
+			iter++;
+		}
+		iter_min = min_obj;
+		
+		//}
 
 		
 		return best_x;
 	}
 	
 	public void n_insert (int [][][] x,  Course[] Co, Curricula[] Cu, String [] Room_id, int [] Room_cap, int p, int d)  {
+		ArrayList <int []> index_pos = new ArrayList <int[]> ();
+		
 		solutions.clear();
 		solutions.add(x);
-		ArrayList <int []> index_pos = new ArrayList <int[]> ();
+		
+		index_change.clear();
+		int [] dummy = new int [3];
+		for (int i = 0; i < 3; i++) {
+			dummy[i] = 0;
+		}
+		index_change.add(dummy);
+		
 		for (int l = 0; l<x.length; l++) {
 			for (int m = 0; m<x[0].length; m++) {
 				for (int n = 0; n<x[0][0].length; n++) {
@@ -128,9 +170,10 @@ class ALNS {
 				for (int k = 0; k<index_pos.size(); k++) {
 					int [][][] x_new = generateX(x);
 					int [] o = index_pos.get(k);
-					x[o[0]][o[1]][o[2]] = 1;
+					x_new[o[0]][o[1]][o[2]] = 1;
 					if (available(x_new,o[0],o[1],o[2],Co,Cu,Room_id,Room_cap,p,d) == true) {
 						solutions.add(x_new);
+						index_change.add(o);
 					}
 				}
 			}
@@ -202,6 +245,14 @@ class ALNS {
 			return feasible;
 		}
 		
+		// Checking if another course is using the room
+		for (int m=0; m<x.length; m++) {
+			if (x[m][j][r]==1 && m != i) {
+				feasible = false;
+				return feasible;
+			}
+		}
+		
 		for(int n = 0; n < x.length; n++) {
 			for(int room = 0; room < x[0][0].length; room++) {
 				if(x[n][j][room] == 1 && Co[n].getLecture_nr().equals(Co[i].getLecture_nr()) && !Co[n].getCourse_nr().equals(Co[i].getCourse_nr())) {
@@ -233,12 +284,29 @@ class ALNS {
 				return feasible;
 			}
 		}
+		int f = 0;
+		for (int m = 0; m < x[0].length; m++) {
+			for (int l = 0; l < x[0][0].length; l++) {
+				if (x[i][m][l] == 1) {
+					f++;
+					if (f >= Co[i].getNr_Lec()) {
+						feasible = false;
+						return feasible;
+					}
+				}
+			}
+		}
 		feasible = true;
 		return feasible;
 	}
 	
 	public double ObjValue(int [][][] x, Course[] Co, Curricula[] Cu, String [] Room_id, int [] Room_cap,int p, int d) {
 		double Obj = 0;
+		double ObjU = 0;
+		double ObjV = 0;
+		double ObjP = 0;
+		double ObjW = 0;
+		double ObjA = 0;
 		int [] U = new int[Co.length]; //unassigned courses
 		int [][] V = new int [x[0].length][x[0][0].length]; //exceeds room cap
 		int [] P = new int [Co.length]; // number of time a course changes room
@@ -277,7 +345,7 @@ class ALNS {
 				}
 			}
 			//System.out.println(days);
-			if (U[i]-tempU < 0) {
+			if ((U[i]-tempU) < 0) {
 				U[i] = 0;
 			} else {
 			U[i] = U[i]-tempU;
@@ -297,6 +365,10 @@ class ALNS {
 			
 			Cost[i] = 10*U[i]+1*P[i]+5*W[i];
 			
+			ObjU += U[i];
+			ObjW += W[i];
+			ObjP += P[i];
+			
 		}
 		for(int j = 0; j< x[0].length; j++) {
 			for(int k = 0; k < x[0][0].length; k++) {
@@ -315,10 +387,61 @@ class ALNS {
 				V[j][k] = tempV;
 				}
 				Obj+= 1*V[j][k];
+				ObjV += V[j][k];
+			}
+		}
+		int con1 = 0;
+		int con2 = 0;
+		int con3 = 0;
+		int con4 = 0;
+		for(int q = 0; q < Cu.length; q++) {
+			int dayCounter = 0;
+			ArrayList <Integer> CoIdx = new ArrayList <Integer>();
+			for(String Course: Cu[q].getCourse_nr()) {
+				for(int i = 0; i < x.length; i++) {
+					//System.out.println(C);
+					if(Course.equals(Co[i].getCourse_nr()) && !CoIdx.contains(i)) {
+						CoIdx.add(i);
+					}
+				}
+			}
+			for(int j = 0; j<x[0].length; j++) {
+				int tempQ = 0;
+				int tempt2 = 0;
+				dayCounter = (j-j%p)/p;
+				//System.out.println(dayCounter);
+				for(int k = 0; k <x[0][0].length; k++) {
+					for(int i: CoIdx) {
+						if(x[i][j][k] == 1) {
+							tempQ = 1;
+							for(int r = 0 ; r <x[0][0].length; r++) {
+								if(tempt2 == 0) {
+								for(int c: CoIdx) {
+											if((j-1) < dayCounter*p && j+1!= d*p) {
+													tempt2 += x[c][j+1][r];
+											} else if((j+1)>= (dayCounter+1)*p) {
+													tempt2 += x[c][j-1][r];
+											} else if((j-1)>= dayCounter*p && (j+1)< (dayCounter+1)*p) {
+													tempt2 += x[c][j-1][r] + x[c][j+1][r];
+											}
+									}
+								}
+							
+							}
+						}
+					}
+				}
+				if (tempt2 == 0 && tempQ == 1) {
+					A[q][j] = 1;
+				}
+				Obj += 2*A[q][j];
+				ObjA += A[q][j];
 			}
 		}
 		
-		for(int q = 0; q < Cu.length; q++) {
+		
+		
+		/*for(int q = 0; q < Cu.length; q++) {
 			int dayCounter = 0;
 			ArrayList <Integer> CoIdx = new ArrayList <Integer>();
 			for(String Course: Cu[q].getCourse_nr()) {
@@ -335,29 +458,32 @@ class ALNS {
 				int index = -1;
 				int tempt2 = 1;
 				int tempA = 0;
-				roomLoop:
-				for(int k = 0; k < x[0][0].length; k++) {
+				int k = 0;
+				while(k < x[0][0].length && sumQ == 0) {
 					for (int i: CoIdx) {
-						if (x[i][j][k] == 1)
+						if (x[i][j][k] == 1) {
 							sumQ += 1;
+							//System.out.println(q + " " + " " + j+ "  " + i + " " +  sumQ);
 							index = i;
-							break roomLoop;
+						}
 					}
+				k++;
 				}
+				
 				if (sumQ == 1) {
-					for(int k = 0; k <x[0][0].length;k++) {
+					for(int r = 0; r <x[0][0].length;r++) {
 						for(int i: CoIdx) {
 							if (i != index) {
 							if(j - 1 < dayCounter*p && j+1 != d*p) {
-								if(x[i][j+1][k] == 0) {
+								if(x[i][j+1][r] == 0) {
 									tempt2 = 0;
 								}
 							} else if (j+1 >= (dayCounter+1)*p) {
-								if(x[i][j-1][k] == 0) {
+								if(x[i][j-1][r] == 0) {
 									tempt2 = 0;
 								}
 							} else if(j -1 >= dayCounter*p && j+1 < (dayCounter+1)*p) { 
-								if (x[i][j-1][k] == 0 && x[i][j+1][k] == 0) {
+								if (x[i][j-1][r] == 0 && x[i][j+1][r] == 0) {
 									tempt2 = 0;
 								}
 							} else {
@@ -372,14 +498,77 @@ class ALNS {
 				}
 				A[q][j] = tempA;
 				Obj+= 2* A[q][j];
+				ObjA += A[q][j];
 				
 			}
-		}
+		}*/
+		/*for(int q = 0; q <Cu.length; q++) {
+			int dayCounter = 0;
+			ArrayList <Integer> CoIdx = new ArrayList <Integer>();
+			for(String Course: Cu[q].getCourse_nr()) {
+				for(int i = 0; i < x.length; i++) {
+					//System.out.println(C);
+					if(Course.equals(Co[i].getCourse_nr()) && !CoIdx.contains(i)) {
+						CoIdx.add(i);
+					}
+				}
+			}
+			
+			for(int j = 0; j < x[0].length; j++) {
+				int tempA = 0;
+				int tempt = 0;
+				int tempt2 = 1;
+				dayCounter = (j-j%p)/p;
+					for (int k = 0; k< x[0][0].length;k++) {
+						for(int i: CoIdx) {
+							if(x[i][j][k] == 1) {
+								tempt = 1;
+								if(j - 1 < dayCounter*p && j+1 != d*p) {
+									if(x[i][j+1][k] == 0) {
+										tempt2 = 0;
+									}
+								} else if (j+1 >= (dayCounter+1)*p) {
+									if(x[i][j-1][k] == 0) {
+										tempt2 = 0;
+									}
+								} else if(j -1 >= dayCounter*p && j+1 < (dayCounter+1)*p) { 
+									if (x[i][j-1][k] == 0 && x[i][j+1][k] == 0) {	
+										tempt2 = 0;
+									}
+								} 
+							}
+						}
+					}
+				if (tempt == 1 && tempt2 == 0) {
+					tempA = 1;
+				}
+				A[q][j] = tempA;
+				Obj+= 2*A[q][j];
+				ObjA += A[q][j];
+			}
+		}*/
+			
+			
 		
+		/*System.out.println(con1);
+		System.out.println(con2);
+		System.out.println(con3);
+		System.out.println(con4);
+		System.out.println("Unassigned " + ObjU);
+		System.out.println("RoomCap " + ObjV);
+		System.out.println("Room Change " + ObjP);
+		System.out.println("Min Work " + ObjW);
+		System.out.println("Curr " + ObjA);*/
+		
+		/*int sum = 0;
+		for(int i = 0; i< Co.length; i++) {
+			System.out.println(Cost[i]);
+			sum += Cost[i];
+		}
+		System.out.println(sum);*/
 		
 		
 		return Obj;
 		
 	}
-	
 }

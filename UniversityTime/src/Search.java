@@ -490,8 +490,6 @@ class Search {
 		return Obj;
 		
 	}
-		
-	}
 	
 	public void sol_change (int i) {
 		int [] sc = swap_change.get(i);
