@@ -17,12 +17,12 @@ class dataReader {
 	
 	
 	public dataReader(String[] filename ) throws FileNotFoundException{
-		for (int n=0;n<filename.length;n++) {
-			File data = new File(filename[n]);
+		for (int n=0;n<filename.length-1;n++) {
+			File data = new File(filename[filename.length-1] + filename[n]);
 			Scanner in = new Scanner(data);
 			in.nextLine();
 			
-			if (filename[n] == "basic.utt") {
+			if (n == 0) {
 				c = in.nextInt(); // Number of courses
 				r = in.nextInt(); // Number of rooms
 				d = in.nextInt(); // The set of days
@@ -30,7 +30,7 @@ class dataReader {
 				cur = in.nextInt(); // Number of curriculum
 				con = in.nextInt(); // Number of constraints
 				l = in.nextInt(); // Number of lecturers
-			} else if (filename[n] == "courses.utt") {
+			} else if (n == 1) {
 				Co = new Course [c];
 				for (int i=0; i<c; i++) {
 					Co[i] = new Course();
@@ -42,33 +42,33 @@ class dataReader {
 					Co[i].createBin_con(d, t);
 					Co[i].setIndex(i);
 				}
-			} else if (filename[n] == "curricula.utt") {
+			} else if (n == 2) {
 				Cur = new Curricula [cur];
 				for (int i=0; i<cur; i++) {
 					Cur[i] = new Curricula();
 					Cur[i].setCur_nr(in.next());
 					Cur[i].setNum_courses(in.nextInt());
 				}
-			} else if (filename[n] == "lecturers.utt") {
+			} else if (n == 3) {
 				Lecturers = new String[l];
 				for (int i = 0; i<l; i++) {
 					Lecturers[i] = in.next();
 				}
-			} else if (filename[n] == "relation.utt") {
+			} else if (n == 4) {
 				for (int i =0; i< cur;i++) {
 					for(int j =0; j< Cur[i].getNum_courses();j++) {
 						in.next();
 						Cur[i].addCourse_nr(in.next());
 					}
 				}
-			} else if (filename[n] == "rooms.utt") {
+			} else if (n == 5) {
 				Room_id = new String[r];
 				Room_cap = new int[r];
 				for (int i = 0; i<r; i++) {
 					Room_id[i] = in.next();
 					Room_cap[i] = in.nextInt();
 				}
-			} else if (filename[n] == "unavailability.utt") {
+			} else if (n == 6) {
 				String i = "";
 				int j = 0;
 				for (int k = 0; k<con;k++) {

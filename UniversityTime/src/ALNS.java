@@ -6,6 +6,7 @@ class ALNS {
 	int [][][] x_best;
 	int [] unassigned;
 	ArrayList <int [][][]> solutions = new ArrayList <int[][][]> ();
+	double obj_best;
 	int con1 = 0;
 	int con2 = 0;
 	int con3 = 0;
@@ -15,18 +16,32 @@ class ALNS {
 	ArrayList <int []> swap_change = new ArrayList <int[]> ();
 	int all_sol = 0;
 	ArrayList <int []> index_change = new ArrayList <int[]> ();
+	int[] cost_t;
 	
 	
 	public ALNS (int [][][] x, Course[] Co, Curricula[] Cu, String [] Room_id, int [] Room_cap, int p, int d) {
 		int iter = 0;
 		int [][][] x_t = generateX(x); // generateX not implemented
 		int [][][] x_b = generateX(x);
+		cost_t = new int [x.length];
+		x_best = generateX(x);
+		obj_best = ObjValue(x_best, Co, Cu, Room_id, Room_cap, p, d);
 		
-		System.out.println("Construct: " + ObjValue(x_b, Co, Cu, Room_id, Room_cap, p, d));
-		x_best = random_removal(x_t,10);
-		System.out.println("Remove: " + ObjValue(x_best, Co, Cu, Room_id, Room_cap, p, d));
-		x_best = insert(x_best, Co, Cu, Room_id, Room_cap, p, d);
-		System.out.println("Final: " + ObjValue(x_best, Co, Cu, Room_id, Room_cap, p, d));
+		while (iter < 20) {
+			x_b = generateX(x_best);
+			System.out.println("Iter: " + iter);
+			x_b = worst_removal(x_b, cost_t ,10);
+			x_b = insert(x_b, Co, Cu, Room_id, Room_cap, p, d);
+			//Search sol2 = new Search(x_b,Co,Cu,Room_id,Room_cap,p,d);
+			//x_b = sol2.returnX();
+			double x_b_obj = ObjValue(x_b, Co, Cu, Room_id, Room_cap, p, d);
+			if (x_b_obj <= obj_best) {
+				x_best = generateX(x_b);
+				obj_best = x_b_obj;
+				System.out.println("Best: " + obj_best);
+			}
+			iter++;
+		}
 		
 		//while (iter < 100) {
 			//rho = roulette_wheel(rho_plus, rho_minus);
@@ -57,7 +72,7 @@ class ALNS {
 
 		//while (iter < 1) {
 		n_insert(best_x,Co,Cu,Room_id,Room_cap,p,d);
-		System.out.println("Sol size: " + solutions.size());
+		//System.out.println("Sol size: " + solutions.size());
 		min_i = 0;
 			
 		int iter2 = 1;
@@ -82,13 +97,13 @@ class ALNS {
 				iter2++;
 			}
 			
-			System.out.println("Sol size: " + solutions.size());
-			System.out.println("min obj: " + min_obj);
+			//System.out.println("Sol size: " + solutions.size());
+			//System.out.println("min obj: " + min_obj);
 			if (min_i != 0) {
 				best_x = solutions.get(min_i);
 				int [] change = index_change.get(min_i);
 				int t = 0;
-				ArrayList <int []> f = new ArrayList <int[]> ();
+				/*ArrayList <int []> f = new ArrayList <int[]> ();
 				for (int [] c: index_change) {
 					if (c[1] == change[1] && c[2] == change[2]) {
 						solutions.remove(t);
@@ -97,7 +112,7 @@ class ALNS {
 					}
 					t++;
 				}
-				index_change.removeAll(f);
+				index_change.removeAll(f);*/
 				ArrayList <int [][][]> a = new ArrayList <int[][][]> ();
 				int b = 0;
 				for (int [][][] sol: solutions) {
@@ -178,6 +193,34 @@ class ALNS {
 				}
 			}
 		}
+	}
+	
+	public int [][][] worst_removal(int [][][] x, int[] Cost, int amount){
+		int [][][] x_gen = generateX(x);
+		ArrayList <Integer> cost_index = new ArrayList <Integer>();
+		while (cost_index.size() < amount) {
+			int max = -1;
+			int index = -1;
+			for(int i = 0; i < Cost.length; i++) {
+				if (max < Cost[i] && !cost_index.contains(i)) {
+					max = Cost[i];
+					index = i;
+				}
+			}
+			if (index >= 0) {
+			cost_index.add(index);
+			}
+		}
+			
+		for(int i: cost_index) {
+			for(int j = 0; j < x[0].length; j++) {
+				for (int k = 0; k <x[0][0].length; k++) {	
+					x_gen[i][j][k] = 0;
+				}
+			}
+		}
+		
+		return x_gen;
 	}
 	
 	public int [][][] random_removal (int [][][] x, int n_rem) {
@@ -289,7 +332,7 @@ class ALNS {
 			for (int l = 0; l < x[0][0].length; l++) {
 				if (x[i][m][l] == 1) {
 					f++;
-					if (f >= Co[i].getNr_Lec()) {
+					if (f > Co[i].getNr_Lec()) {
 						feasible = false;
 						return feasible;
 					}
@@ -439,135 +482,7 @@ class ALNS {
 			}
 		}
 		
-		
-		
-		/*for(int q = 0; q < Cu.length; q++) {
-			int dayCounter = 0;
-			ArrayList <Integer> CoIdx = new ArrayList <Integer>();
-			for(String Course: Cu[q].getCourse_nr()) {
-				for(int i = 0; i < x.length; i++) {
-					//System.out.println(C);
-					if(Course.equals(Co[i].getCourse_nr()) && !CoIdx.contains(i)) {
-						CoIdx.add(i);
-					}
-				}
-			}
-			for (int j = 0; j < x[0].length; j++) {
-				int sumQ = 0;
-				dayCounter = (j-j%p)/p;
-				int index = -1;
-				int tempt2 = 1;
-				int tempA = 0;
-				int k = 0;
-				while(k < x[0][0].length && sumQ == 0) {
-					for (int i: CoIdx) {
-						if (x[i][j][k] == 1) {
-							sumQ += 1;
-							//System.out.println(q + " " + " " + j+ "  " + i + " " +  sumQ);
-							index = i;
-						}
-					}
-				k++;
-				}
-				
-				if (sumQ == 1) {
-					for(int r = 0; r <x[0][0].length;r++) {
-						for(int i: CoIdx) {
-							if (i != index) {
-							if(j - 1 < dayCounter*p && j+1 != d*p) {
-								if(x[i][j+1][r] == 0) {
-									tempt2 = 0;
-								}
-							} else if (j+1 >= (dayCounter+1)*p) {
-								if(x[i][j-1][r] == 0) {
-									tempt2 = 0;
-								}
-							} else if(j -1 >= dayCounter*p && j+1 < (dayCounter+1)*p) { 
-								if (x[i][j-1][r] == 0 && x[i][j+1][r] == 0) {
-									tempt2 = 0;
-								}
-							} else {
-								tempt2 = 1;
-							}
-						}
-						}
-					}
-				}
-				if(sumQ == 1 && tempt2 == 0) {
-					tempA = 1;
-				}
-				A[q][j] = tempA;
-				Obj+= 2* A[q][j];
-				ObjA += A[q][j];
-				
-			}
-		}*/
-		/*for(int q = 0; q <Cu.length; q++) {
-			int dayCounter = 0;
-			ArrayList <Integer> CoIdx = new ArrayList <Integer>();
-			for(String Course: Cu[q].getCourse_nr()) {
-				for(int i = 0; i < x.length; i++) {
-					//System.out.println(C);
-					if(Course.equals(Co[i].getCourse_nr()) && !CoIdx.contains(i)) {
-						CoIdx.add(i);
-					}
-				}
-			}
-			
-			for(int j = 0; j < x[0].length; j++) {
-				int tempA = 0;
-				int tempt = 0;
-				int tempt2 = 1;
-				dayCounter = (j-j%p)/p;
-					for (int k = 0; k< x[0][0].length;k++) {
-						for(int i: CoIdx) {
-							if(x[i][j][k] == 1) {
-								tempt = 1;
-								if(j - 1 < dayCounter*p && j+1 != d*p) {
-									if(x[i][j+1][k] == 0) {
-										tempt2 = 0;
-									}
-								} else if (j+1 >= (dayCounter+1)*p) {
-									if(x[i][j-1][k] == 0) {
-										tempt2 = 0;
-									}
-								} else if(j -1 >= dayCounter*p && j+1 < (dayCounter+1)*p) { 
-									if (x[i][j-1][k] == 0 && x[i][j+1][k] == 0) {	
-										tempt2 = 0;
-									}
-								} 
-							}
-						}
-					}
-				if (tempt == 1 && tempt2 == 0) {
-					tempA = 1;
-				}
-				A[q][j] = tempA;
-				Obj+= 2*A[q][j];
-				ObjA += A[q][j];
-			}
-		}*/
-			
-			
-		
-		/*System.out.println(con1);
-		System.out.println(con2);
-		System.out.println(con3);
-		System.out.println(con4);
-		System.out.println("Unassigned " + ObjU);
-		System.out.println("RoomCap " + ObjV);
-		System.out.println("Room Change " + ObjP);
-		System.out.println("Min Work " + ObjW);
-		System.out.println("Curr " + ObjA);*/
-		
-		/*int sum = 0;
-		for(int i = 0; i< Co.length; i++) {
-			System.out.println(Cost[i]);
-			sum += Cost[i];
-		}
-		System.out.println(sum);*/
-		
-		
+		cost_t = Cost;
 		return Obj;
 		
 	}
