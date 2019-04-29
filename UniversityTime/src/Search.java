@@ -76,7 +76,7 @@ class Search {
 					best_x = solutions.get(min_i);
 					int [] change = index_change.get(min_i);
 					//System.out.println("Sol rem: " + solutions.size());
-					System.out.println("Num swaps: " + num_swaps);
+					//System.out.println("Num swaps: " + num_swaps);
 					ArrayList <int [][][]> a = new ArrayList <int[][][]> ();
 					ArrayList <int []> b = new ArrayList <int[]> ();
 					for (int i = 0; i < solutions.size(); i++) {

@@ -55,7 +55,7 @@ class ALNS {
 			//x_b = random_removal(x_b ,num_rem);
 			x_b = insert(x_b, Co, Cu, Room_id, Room_cap, p, d);
 			double search_time = 30.0;
-			Search sol2 = new Search(x, search_time, room_cap_con, watch, Co,Cu,Room_id,Room_cap,p,d);
+			Search sol2 = new Search(x_b, search_time, room_cap_con, watch, Co,Cu,Room_id,Room_cap,p,d);
 			x_b = sol2.returnX();
 			double x_b_obj = ObjValue(x_b, Co, Cu, Room_id, Room_cap, p, d);
 			if (x_b_obj <= obj_best) {
@@ -64,11 +64,11 @@ class ALNS {
 				//System.out.println("Best: " + obj_best);
 				ro.updateWeights(0.2, rem);
 			} else {
-				ro.updateWeights(-0.05, rem);
+				ro.updateWeights(-0.025, rem);
 			}
 			System.out.println("Best: " + obj_best);
 			iter++;
-			ro.updateWeights(-0.05, 0);
+			ro.updateWeights(-0.025, 0);
 			elapsedTime = watch.lap();
 		}
 		
