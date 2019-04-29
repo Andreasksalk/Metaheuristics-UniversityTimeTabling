@@ -3,6 +3,7 @@ import java.util.ArrayList;
 class Search {
 	int [][][] x_original;
 	int [][][] x_best;
+	int [][][] best_x;
 	int [] unassigned;
 	ArrayList <int [][][]> solutions = new ArrayList <int[][][]> ();
 	int con1 = 0;
@@ -13,8 +14,17 @@ class Search {
 	int con6 = 0;
 	ArrayList <int []> index_change = new ArrayList <int[]> ();
 	int all_sol = 0;
+	StopWatch watch;
+	boolean room_cap_con;
+	double search_time;
+	int old_sol = -1;
 	
-	public Search(int [][][] x, Course[] Co, Curricula[] Cu, String [] Room_id, int [] Room_cap, int p, int d) {
+	public Search(int [][][] x, double search_time, boolean room_cap_con, StopWatch watch, Course[] Co, Curricula[] Cu, String [] Room_id, int [] Room_cap, int p, int d) {
+		this.watch = watch;
+		this.room_cap_con = room_cap_con;
+		this.search_time = search_time;
+		double elapsedTime = 0.0;
+		double startTime = watch.lap();
 		
 		int [][][] best_x = generateX(x);
 		int iter = 1;
@@ -22,17 +32,26 @@ class Search {
 		double min_obj = ObjValue(best_x, Co, Cu, Room_id, Room_cap, p, d);
 		double iter_min = ObjValue(best_x, Co, Cu, Room_id, Room_cap, p, d);
 		
+		loop:
+		while (elapsedTime < search_time && solutions.size() != old_sol) {
+		
+		
 		int min_i = 0;
 		
 		int num_swaps = 0;
 		int num_n = 0;
-
+		
 		while (iter < 2 && num_swaps < 50) {
+			elapsedTime = watch.lap()-startTime;
 			num_n++;
 			Neighbourhood(best_x,Co,Cu,Room_id,Room_cap,p,d);
 			int num_swaps_n = 0;
-			int old_sol = 0;
+			//old_sol = 0;
 			while (solutions.size() > 1 && solutions.size() != old_sol) {
+				elapsedTime = watch.lap()-startTime;
+				if (elapsedTime > search_time) {
+					break loop;
+				}
 				old_sol = solutions.size();
 				int q = 0;
 				min_i = 0;
@@ -56,7 +75,7 @@ class Search {
 				if (min_i != 0) {
 					best_x = solutions.get(min_i);
 					int [] change = index_change.get(min_i);
-					System.out.println("Sol rem: " + solutions.size());
+					//System.out.println("Sol rem: " + solutions.size());
 					System.out.println("Num swaps: " + num_swaps);
 					ArrayList <int [][][]> a = new ArrayList <int[][][]> ();
 					ArrayList <int []> b = new ArrayList <int[]> ();
@@ -82,11 +101,18 @@ class Search {
 				iter++;
 			}
 			iter_min = min_obj;
-			
-		}
+			//x_best = generateX(best_x);
 		
+		//elapsedTime = watch.lap()-startTime;
+		}
+		}
 		x_best = generateX(best_x);
 	}
+	
+	public StopWatch returnWatch () {
+		return watch;
+	}
+	
 	
 	public void Neighbourhood(int [][][] x, Course[] Co, Curricula[] Cu, String [] Room_id, int [] Room_cap, int p, int d) {
 		x_original = new int [x.length][x[0].length][x[0][0].length];
@@ -104,7 +130,7 @@ class Search {
 		
 		kSwap(x_original,Co,Cu,Room_id,Room_cap,p,d);
 		
-		System.out.println("Number of solutions in neighborhood: " + solutions.size());
+		//System.out.println("Number of solutions in neighborhood: " + solutions.size());
 		all_sol += solutions.size();
 
 	}
@@ -112,14 +138,14 @@ class Search {
 	public boolean available (int [][][] x,int i, int j, int r, Course[] Co, Curricula[] Cu, String [] Room_id, int [] Room_cap, int p, int d) {
 		
 		boolean feasible = false;
-		
+		if (room_cap_con == true) {
 		//x[class][period1][room] -> x[i][j][r] 
 		if (Room_cap[r]<Co[i].getNr_students()) {
 			con1++;
 			feasible = false;
 			return feasible;
 		}
-			
+		}
 		
 		if (Co[i].getBin_con()[j] == 0) {
 			con2++;
@@ -200,7 +226,9 @@ class Search {
 	
 	public void kSwap(int [][][] x, Course[] Co, Curricula[] Cu, String [] Room_id, int [] Room_cap, int p, int d){
 		ArrayList <int [][][]> newsol = new ArrayList <int[][][]> ();
-			
+		int t = -1;
+		loop:
+		while (newsol.size() < 3000 && t == -1) {
 			for (int i = 0; i < x.length; i++) {
 				for(int j = 0; j < x[i].length; j++) {
 					for (int k = 0; k < x[i][j].length;k++){
@@ -227,6 +255,9 @@ class Search {
 											if(available(x_new,l,j,k,Co,Cu,Room_id,Room_cap,p,d) == true && available(x_new,i,m,n,Co,Cu,Room_id,Room_cap,p,d) == true ) {
 												newsol.add(x_new);
 												index_change.add(o);
+												if (newsol.size() > 3000) {
+													break loop;
+												}
 											}
 										}
 									}
@@ -236,7 +267,13 @@ class Search {
 					}
 				}
 			}
+			t=1;
+			if (t == 1) {
+				break loop;
+			}
+		}
 		solutions.addAll(newsol);
+		
 	}
 	
 	

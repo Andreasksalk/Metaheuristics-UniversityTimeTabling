@@ -1,6 +1,7 @@
 import java.util.ArrayList;
 import java.util.Random;
 
+
 class ALNS {
 	int [][][] x_original;
 	int [][][] x_best;
@@ -17,32 +18,61 @@ class ALNS {
 	int all_sol = 0;
 	ArrayList <int []> index_change = new ArrayList <int[]> ();
 	int[] cost_t;
+	boolean room_cap_con;
+	StopWatch watch;
+	int num_rem;
 	
 	
-	public ALNS (int [][][] x, Course[] Co, Curricula[] Cu, String [] Room_id, int [] Room_cap, int p, int d) {
+	public ALNS (int [][][] x, double removal_pro, boolean room_cap_con, StopWatch watch, Course[] Co, Curricula[] Cu, String [] Room_id, int [] Room_cap, int p, int d) {
+		this.watch = watch;
+		this.room_cap_con = room_cap_con;
+		this.num_rem = (int) removal_pro*Co.length;
+		
 		int iter = 0;
-		int [][][] x_t = generateX(x); // generateX not implemented
+		//int [][][] x_t = generateX(x); // generateX not implemented
 		int [][][] x_b = generateX(x);
 		cost_t = new int [x.length];
 		x_best = generateX(x);
 		obj_best = ObjValue(x_best, Co, Cu, Room_id, Room_cap, p, d);
 		
-		while (iter < 20) {
+		double [] w = new double [2];
+		w[0] = 1;
+		w[1] = 1;
+		
+		Roulette ro = new Roulette(w);
+		
+		double elapsedTime = watch.lap();
+		while (elapsedTime < 300) {
+			int rem = ro.spin();
 			x_b = generateX(x_best);
+			System.out.println("Destroy: " + rem);
+			if (rem == 0) {
+				x_b = worst_removal(x_b, cost_t , num_rem);
+			} else if (rem == 1) {
+				x_b = random_removal(x_b ,num_rem*10);
+			}
 			System.out.println("Iter: " + iter);
-			x_b = worst_removal(x_b, cost_t ,10);
+			//x_b = random_removal(x_b ,num_rem);
 			x_b = insert(x_b, Co, Cu, Room_id, Room_cap, p, d);
-			//Search sol2 = new Search(x_b,Co,Cu,Room_id,Room_cap,p,d);
-			//x_b = sol2.returnX();
+			double search_time = 30.0;
+			Search sol2 = new Search(x, search_time, room_cap_con, watch, Co,Cu,Room_id,Room_cap,p,d);
+			x_b = sol2.returnX();
 			double x_b_obj = ObjValue(x_b, Co, Cu, Room_id, Room_cap, p, d);
 			if (x_b_obj <= obj_best) {
 				x_best = generateX(x_b);
 				obj_best = x_b_obj;
-				System.out.println("Best: " + obj_best);
+				//System.out.println("Best: " + obj_best);
+				ro.updateWeights(0.2, rem);
+			} else {
+				ro.updateWeights(-0.05, rem);
 			}
+			System.out.println("Best: " + obj_best);
 			iter++;
+			ro.updateWeights(-0.05, 0);
+			elapsedTime = watch.lap();
 		}
 		
+		watch.stop();
 		//while (iter < 100) {
 			//rho = roulette_wheel(rho_plus, rho_minus);
 			//d = select("Set of destroy",rho); // Roulette wheel function and destroy functions not implemented
@@ -274,11 +304,13 @@ class ALNS {
 		
 		boolean feasible = false;
 		
+		if (room_cap_con == true) {
 		//x[class][period1][room] -> x[i][j][r] 
 		if (Room_cap[r]<Co[i].getNr_students()) {
 			con1++;
 			feasible = false;
 			return feasible;
+		}
 		}
 			
 		
@@ -485,5 +517,8 @@ class ALNS {
 		cost_t = Cost;
 		return Obj;
 		
+	}
+	public double returnObj () {
+		return obj_best;
 	}
 }

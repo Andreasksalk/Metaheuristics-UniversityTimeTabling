@@ -7,7 +7,7 @@ class StopWatch {
 	}
 	
 	public void start() {
-		startTime = System.currentTimeMillis();
+		startTime = System.currentTimeMillis()/1000;
 	}
 
 	public double stop() {
@@ -19,7 +19,7 @@ class StopWatch {
 		if (startTime ==-1) {
 			throw new RuntimeException("The stop watch must be started before it can be stopped");
 			}
-		return (System.currentTimeMillis()-startTime);
+		return (System.currentTimeMillis()/1000-startTime);
 		}
 	
 	

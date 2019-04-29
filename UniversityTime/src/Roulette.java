@@ -35,8 +35,10 @@ class Roulette
     }
     
     public void updateWeights (double w, int i) {
+    	if(c[i+1] + w > 0) {
     	c[i+1] = c[i+1] + w;
     	total += w;
+    	}
     }
     public double[] getC() {
     	return c;

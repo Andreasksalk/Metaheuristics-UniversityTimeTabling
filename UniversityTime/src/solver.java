@@ -10,8 +10,17 @@ public class solver {
 	int d;
 	int [][][] x;
 	int [][][] x2;
+	StopWatch watch;
+	double search_time;
+	double removal_pro;
+	boolean room_cap_con;
+	double obj_best;
 	
-	public solver(String[] filename) {
+	public solver(String[] filename,StopWatch watch, double search_time, double removal_pro, boolean room_cap_con) {
+		this.watch = watch;
+		this.removal_pro = removal_pro;
+		this.room_cap_con = room_cap_con;
+		this.search_time = search_time;
 		try {
 			dataReader instance = new dataReader(filename);
 			this.Co = instance.getCourses();
@@ -30,11 +39,12 @@ public class solver {
 	public void solve() {
 		FCFS sol1 = new FCFS(Co,Cu,Room_id,Room_cap,p,d);
 		x = sol1.returnX();
-		Search sol2 = new Search(x,Co,Cu,Room_id,Room_cap,p,d);
+		Search sol2 = new Search(x, search_time, room_cap_con, watch, Co,Cu,Room_id,Room_cap,p,d);
+		watch = sol2.returnWatch();
 		x = sol2.returnX();
-		ALNS sol3 = new ALNS(x,Co,Cu,Room_id,Room_cap,p,d);
+		ALNS sol3 = new ALNS(x,removal_pro, room_cap_con,watch,Co,Cu,Room_id,Room_cap,p,d);
 		x = sol3.returnX();
-		
+		obj_best = sol3.returnObj();
 		writeSol("test01.sol", x);
 		//x2 = sol2.returnX();
 		//System.out.print(x.length);
@@ -110,5 +120,7 @@ public class solver {
 			
 		}
 	}
-		
+	public double returnObj () {
+		return obj_best;
+	}
 }
