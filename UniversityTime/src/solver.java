@@ -15,6 +15,7 @@ public class solver {
 	double removal_pro;
 	boolean room_cap_con;
 	double obj_best;
+	int iter;
 	
 	public solver(String[] filename,StopWatch watch, double search_time, double removal_pro, boolean room_cap_con) {
 		this.watch = watch;
@@ -45,6 +46,7 @@ public class solver {
 		ALNS sol3 = new ALNS(x,removal_pro, room_cap_con,watch,Co,Cu,Room_id,Room_cap,p,d);
 		x = sol3.returnX();
 		obj_best = sol3.returnObj();
+		iter = sol3.returnIter();
 		writeSol("test01.sol", x);
 		//x2 = sol2.returnX();
 		//System.out.print(x.length);
@@ -122,5 +124,8 @@ public class solver {
 	}
 	public double returnObj () {
 		return obj_best;
+	}
+	public int returnIter () {
+		return iter;
 	}
 }

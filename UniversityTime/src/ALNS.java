@@ -21,12 +21,13 @@ class ALNS {
 	boolean room_cap_con;
 	StopWatch watch;
 	int num_rem;
+	int iter;
 	
 	
 	public ALNS (int [][][] x, double removal_pro, boolean room_cap_con, StopWatch watch, Course[] Co, Curricula[] Cu, String [] Room_id, int [] Room_cap, int p, int d) {
 		this.watch = watch;
 		this.room_cap_con = room_cap_con;
-		this.num_rem = (int) removal_pro*Co.length;
+		this.num_rem = (int) Math.round(removal_pro*Co.length);
 		
 		int iter = 0;
 		//int [][][] x_t = generateX(x); // generateX not implemented
@@ -42,19 +43,19 @@ class ALNS {
 		Roulette ro = new Roulette(w);
 		
 		double elapsedTime = watch.lap();
-		while (elapsedTime < 300) {
+		while (elapsedTime < 180) {
 			int rem = ro.spin();
 			x_b = generateX(x_best);
 			System.out.println("Destroy: " + rem);
 			if (rem == 0) {
 				x_b = worst_removal(x_b, cost_t , num_rem);
 			} else if (rem == 1) {
-				x_b = random_removal(x_b ,num_rem*10);
+				x_b = random_removal(x_b ,num_rem*5);
 			}
 			System.out.println("Iter: " + iter);
 			//x_b = random_removal(x_b ,num_rem);
 			x_b = insert(x_b, Co, Cu, Room_id, Room_cap, p, d);
-			double search_time = 30.0;
+			double search_time = 15.0;
 			Search sol2 = new Search(x_b, search_time, room_cap_con, watch, Co,Cu,Room_id,Room_cap,p,d);
 			x_b = sol2.returnX();
 			double x_b_obj = ObjValue(x_b, Co, Cu, Room_id, Room_cap, p, d);
@@ -64,7 +65,7 @@ class ALNS {
 				//System.out.println("Best: " + obj_best);
 				ro.updateWeights(0.2, rem);
 			} else {
-				ro.updateWeights(-0.025, rem);
+				ro.updateWeights(-0.05, rem);
 			}
 			System.out.println("Best: " + obj_best);
 			iter++;
@@ -209,7 +210,9 @@ class ALNS {
 			}
 			unassigned[i] = unassigned[i]-temp;
 		}
-		
+		int t = -1;
+		loop:
+		while (solutions.size() < 2000 && t == -1) {
 		for (int i = 0; i< unassigned.length; i++) {
 			if (unassigned[i] > 0) {
 				for (int k = 0; k<index_pos.size(); k++) {
@@ -219,9 +222,17 @@ class ALNS {
 					if (available(x_new,o[0],o[1],o[2],Co,Cu,Room_id,Room_cap,p,d) == true) {
 						solutions.add(x_new);
 						index_change.add(o);
+						if (solutions.size() > 2000) {
+							break loop;
+						}
 					}
 				}
 			}
+		}
+		t = 1;
+		if (t == 1) {
+			break loop;
+		}
 		}
 	}
 	
@@ -521,4 +532,9 @@ class ALNS {
 	public double returnObj () {
 		return obj_best;
 	}
+	
+	public int returnIter () {
+		return iter;
+	}
+	
 }

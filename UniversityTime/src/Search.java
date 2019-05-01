@@ -228,7 +228,7 @@ class Search {
 		ArrayList <int [][][]> newsol = new ArrayList <int[][][]> ();
 		int t = -1;
 		loop:
-		while (newsol.size() < 3000 && t == -1) {
+		while (newsol.size() < 2000 && t == -1) {
 			for (int i = 0; i < x.length; i++) {
 				for(int j = 0; j < x[i].length; j++) {
 					for (int k = 0; k < x[i][j].length;k++){
@@ -255,7 +255,7 @@ class Search {
 											if(available(x_new,l,j,k,Co,Cu,Room_id,Room_cap,p,d) == true && available(x_new,i,m,n,Co,Cu,Room_id,Room_cap,p,d) == true ) {
 												newsol.add(x_new);
 												index_change.add(o);
-												if (newsol.size() > 3000) {
+												if (newsol.size() > 2000) {
 													break loop;
 												}
 											}
